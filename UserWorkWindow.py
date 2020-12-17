@@ -38,12 +38,12 @@ class UserWorkWindow(QMainWindow):
             self.viewTableButtons.append(QPushButton("View", self))
             self.viewTableButtons[i].setGeometry(800, 100 + i * 70, 150, 30)
             self.viewTableButtons[i].setStyleSheet('''
-                                font-size: 18px;
-                                color: #ede8df;
-                                background-color: #749cdb;
-                                border-radius: 10px;
-                                padding: 3px 8px;
-                            ''')
+                font-size: 18px;
+                color: #ede8df;
+                background-color: #749cdb;
+                border-radius: 10px;
+                padding: 3px 8px;
+            ''')
             self.viewTableButtons[i].clicked.connect(partial(self.viewTableButtonPressed, self.tableNames[i]))
             self.viewTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
