@@ -5,13 +5,32 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QCursor
 
 
-class AddTableWindow(QMainWindow):
+class ChangeTableWindow(QMainWindow):
     def __init__(self, tableName, connectionStr):
         super().__init__()
 
         self.setMinimumSize(QSize(1400, 800))
         self.tableName = tableName
         self.connectionStr = connectionStr
+
+        self.checkLabel = QLabel("Change record: ", self)
+        self.checkLabel.setGeometry(300, 80, 100, 30)
+        self.checkRecordBox = QComboBox(self)
+        self.checkRecordBox.setGeometry(450, 80, 750, 30)
+
+        try:
+            connection = psycopg2.connect(self.connectionStr)
+            cursor = connection.cursor()
+
+            cursor.execute('SELECT * FROM public.%s;' % self.tableName)
+            for i in cursor.fetchall():
+                self.checkRecordBox.addItem(str(tuple(i)))
+
+        except Exception as exception:
+            msgBox = QMessageBox(QMessageBox.Critical, "Error", "Error: " + str(exception),
+                                 QMessageBox.Ok | QMessageBox.Cancel, self)
+            msgBox.exec()
+
         self.columns = []
         self.labels = []
         self.lineEdits = []
@@ -19,11 +38,11 @@ class AddTableWindow(QMainWindow):
         self.submitButton = 0
 
         try:
-            connection = psycopg2.connect(connectionStr)
+            connection = psycopg2.connect(self.connectionStr)
             cursor = connection.cursor()
 
             cursor.execute('SELECT column_name FROM information_schema.columns WHERE \
-                                       table_name = \'%s\';' % self.tableName)
+                           table_name = \'%s\';' % self.tableName)
             for i in cursor.fetchall():
                 if str(i[0]) != "id":
                     self.columns.append(i[0])
@@ -35,11 +54,11 @@ class AddTableWindow(QMainWindow):
 
             for i in range(0, len(self.columns)):
                 self.labels.append(QLabel("%s: " % self.columns[i], self))
-                labelW = 50 + widthCoeff * 400
-                self.labels[i].setGeometry(labelW, 80 + heightCoeff * 80, 100, 30)
+                labelW = 200 + widthCoeff * 400
+                self.labels[i].setGeometry(labelW, 200 + heightCoeff * 100, 100, 30)
                 if str(self.columns[i]).find("id") == -1:
                     self.lineEdits.append(QLineEdit(self))
-                    self.lineEdits[lineEditsCounter].setGeometry(labelW + 120, 80 + heightCoeff * 80, 200, 30)
+                    self.lineEdits[lineEditsCounter].setGeometry(labelW + 120, 200 + heightCoeff * 100, 200, 30)
                     lineEditsCounter += 1
                 else:
                     data = []
@@ -54,7 +73,7 @@ class AddTableWindow(QMainWindow):
                     self.comboBoxes.append(QComboBox(self))
                     for k in data:
                         self.comboBoxes[comboBoxesCounter].addItem(k)
-                    self.comboBoxes[comboBoxesCounter].setGeometry(labelW + 120, 80 + heightCoeff * 80, 200, 30)
+                    self.comboBoxes[comboBoxesCounter].setGeometry(labelW + 120, 200 + heightCoeff * 100, 200, 30)
                     comboBoxesCounter += 1
                 widthCoeff += 1
                 if (i + 1) % 3 == 0:
@@ -62,7 +81,7 @@ class AddTableWindow(QMainWindow):
                     widthCoeff = 0
 
             self.submitButton = QPushButton("Submit", self)
-            self.submitButton.setGeometry(550, 220 + heightCoeff * 100, 150, 40)
+            self.submitButton.setGeometry(700, 400 + heightCoeff * 100, 150, 40)
             self.submitButton.setStyleSheet('''
                 font-size: 18px;
                 color: #ede8df;
@@ -88,7 +107,7 @@ class AddTableWindow(QMainWindow):
 
             # call a sql procedure
 
-            msgBox = QMessageBox(QMessageBox.Information, "Add", "Insert record: ", # + string of record + to tableName
+            msgBox = QMessageBox(QMessageBox.Information, "Change", "Change record: ", # + string of record + to tableName
                                  QMessageBox.Ok | QMessageBox.Cancel, self)
         except Exception as exception:
             msgBox = QMessageBox(QMessageBox.Critical, "Error", "Error: " + str(exception),

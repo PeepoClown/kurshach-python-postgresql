@@ -19,7 +19,7 @@ class AddTableWindow(QMainWindow):
         self.submitButton = 0
 
         try:
-            connection = psycopg2.connect(connectionStr)
+            connection = psycopg2.connect(self.connectionStr)
             cursor = connection.cursor()
 
             cursor.execute('SELECT column_name FROM information_schema.columns WHERE \
@@ -62,7 +62,7 @@ class AddTableWindow(QMainWindow):
                     widthCoeff = 0
 
             self.submitButton = QPushButton("Submit", self)
-            self.submitButton.setGeometry(550, 220 + heightCoeff * 100, 150, 40)
+            self.submitButton.setGeometry(550, 200 + heightCoeff * 100, 150, 40)
             self.submitButton.setStyleSheet('''
                 font-size: 18px;
                 color: #ede8df;
