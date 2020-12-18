@@ -80,18 +80,62 @@ class AddTableWindow(QMainWindow):
 
         self.show()
 
+    def getFK(self, text):
+        text = str(text).split(',')
+        text = (text[0])[1:]
+        return text
+
     def submitButtonPressed(self):
         msgBox = 0
+        if self.tableName == "schedule":
+            self.addToSchedule()
+        else:
+            try:
+                connection = psycopg2.connect(self.connectionStr)
+                cursor = connection.cursor()
+
+                procedureName = str(self.tableName).lower() + "Add"
+                argsStr = "("
+                for i in self.lineEdits:
+                    argsStr += '\'' + i.text() + '\'' + ", "
+                for i in self.comboBoxes:
+                    argsStr += '\'' + self.getFK(i.currentText()) + '\'' + ", "
+                argsStr = argsStr[:-2]
+                argsStr += ")"
+
+                cursor.execute('CALL %s%s;' % (procedureName, argsStr))
+                connection.commit()
+
+                msgBox = QMessageBox(QMessageBox.Information, "Add", "Insert record: " + argsStr,
+                                     QMessageBox.Ok | QMessageBox.Cancel, self)
+                self.close()
+            except Exception as exception:
+                msgBox = QMessageBox(QMessageBox.Critical, "Error", "Error: " + str(exception),
+                                     QMessageBox.Ok | QMessageBox.Cancel, self)
+            msgBox.exec()
+
+    def addToSchedule(self):
         try:
             connection = psycopg2.connect(self.connectionStr)
             cursor = connection.cursor()
 
-            # call a sql procedure
+            procedureName = "scheduleAdd"
+            argsStr = "(" + '\'' + self.getFK(self.comboBoxes[0].currentText()) + '\'' + ", " + \
+                    '\'' + self.getFK(self.comboBoxes[1].currentText()) + '\'' + ", " + \
+                    '\'' + self.getFK(self.comboBoxes[2].currentText()) + '\'' + ", " + \
+                    '\'' + self.lineEdits[0].text() + '\'' + ", " + \
+                    '\'' + self.getFK(self.comboBoxes[3].currentText()) + '\'' + ", " + \
+                    '\'' + self.getFK(self.comboBoxes[4].currentText()) + '\'' + ", " + \
+                    '\'' + self.lineEdits[1].text() + '\'' + ")"
+            print(argsStr)
 
-            msgBox = QMessageBox(QMessageBox.Information, "Add", "Insert record: ", # + string of record + to tableName
+            cursor.execute('CALL %s%s;' % (procedureName, argsStr))
+            connection.commit()
+
+            msgBox = QMessageBox(QMessageBox.Information, "Add", "Insert record: " + argsStr,
                                  QMessageBox.Ok | QMessageBox.Cancel, self)
+            self.close()
         except Exception as exception:
             msgBox = QMessageBox(QMessageBox.Critical, "Error", "Error: " + str(exception),
                                  QMessageBox.Ok | QMessageBox.Cancel, self)
         msgBox.exec()
-        self.close()

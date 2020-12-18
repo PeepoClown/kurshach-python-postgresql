@@ -292,4 +292,289 @@ CREATE INDEX schedule_FKIdTeacherIndex ON public.schedule (teacher_id);
 CREATE INDEX schedule_FKIdClassroomIndex ON public.schedule (classroom_id);
 CREATE INDEX schedule_FKIdClassTimeIndex ON public.schedule (classTime_id);
 
+-- procedure for table campus : insert, update, delete
+CREATE PROCEDURE campusAdd(_name varchar(50), _adress varchar(50), _phone varchar(50), _workStart time, _workEnd time)
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.campus (name, adress, phone, workStart, workEnd) VALUES
+        (_name, _adress, _phone, _workStart, _workEnd);
+$$;
 
+CREATE PROCEDURE campusChange(_id integer, _name varchar(50), _adress varchar(50), _phone varchar(50), _workStart time, _workEnd time)
+LANGUAGE SQL
+AS $$
+    UPDATE public.campus
+    SET name = _name,
+    adress = _adress,
+    phone = _phone,
+    workStart = _workStart,
+    workEnd = _workEnd
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE campusDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.campus
+    WHERE id = _id;
+$$;
+
+-- procedure for table classroom : insert, update, delete
+CREATE PROCEDURE classroomAdd(_name varchar(50), _campus_id integer)
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.classroom (name, campus_id) VALUES
+        (_name, _campus_id);
+$$;
+
+CREATE PROCEDURE classroomChange(_id integer, _name varchar(50), _campus_id integer)
+LANGUAGE SQL
+AS $$
+    UPDATE public.classroom
+    SET name = _name,
+    campus_id = _campus_id
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE classroomDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.classroom
+    WHERE id = _id;
+$$;
+
+-- procedure for table subject : insert, update, delete
+CREATE PROCEDURE subjectAdd(_name varchar(50))
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.subject (name) VALUES
+        (_name);
+$$;
+
+CREATE PROCEDURE subjectChange(_id integer, _name varchar(50))
+LANGUAGE SQL
+AS $$
+    UPDATE public.subject
+    SET name = _name
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE subjectDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.subject
+    WHERE id = _id;
+$$;
+
+-- procedure for table calssTime : insert, update, delete
+CREATE PROCEDURE classtimeAdd(_startTime time, _endTime time)
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.classTime (startTime, endTime) VALUES
+        (_startTime, _endTime);
+$$;
+
+CREATE PROCEDURE classtimeChange(_id integer, _startTime time, _endTime time)
+LANGUAGE SQL
+AS $$
+    UPDATE public.classTime
+    SET startTime = _startTime,
+        endTime = _endTime
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE classtimeDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.classTime
+    WHERE id = _id;
+$$;
+
+-- procedure for table faculty : insert, update, delete
+CREATE PROCEDURE facultyAdd(_name varchar(50), _phone varchar(20), _email varchar(50), _chief_id integer, _campus_id integer)
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.faculty (name, phone, email, chief_id, campus_id) VALUES
+        (_name, _phone, _email, _chief_id, _campus_id);
+$$;
+
+CREATE PROCEDURE facultyChange(_id integer, _name varchar(50), _phone varchar(20), _email varchar(50), _chief_id integer, _campus_id integer)
+LANGUAGE SQL
+AS $$
+    UPDATE public.faculty
+    SET name = _name,
+        phone = _phone,
+        email = _email,
+        chief_id = _chief_id,
+        campus_id = _campus_id
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE facultyDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.faculty
+    WHERE id = _id;
+$$;
+
+-- procedure for table cathedra : insert, update, delete
+CREATE PROCEDURE cathedraAdd(_name varchar(50), _phone varchar(20), _email varchar(50), _faculty_id integer, _chief_id integer, _campus_id integer)
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.cathedra (name, phone, email, faculty_id, chief_id, campus_id) VALUES
+        (_name, _phone, _email, _faculty_id, _chief_id, _campus_id);
+$$;
+
+CREATE PROCEDURE cathedraChange(_id integer, _name varchar(50), _phone varchar(20), _email varchar(50), _faculty_id integer, _chief_id integer, _campus_id integer)
+LANGUAGE SQL
+AS $$
+    UPDATE public.cathedra
+    SET name = _name,
+        phone = _phone,
+        email = _email,
+        faculty_id = _faculty_id,
+        chief_id = _chief_id,
+        campus_id = _campus_id
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE cathedraDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.cathedra
+    WHERE id = _id;
+$$;
+
+-- procedure for table teacherProfile : insert, update, delete
+CREATE PROCEDURE teacherprofileAdd(_rank varchar(50), _grade varchar(50), _position varchar(50), _education varchar(50))
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.teacherProfile (rank, grade, position, education) VALUES
+        (_rank, _grade, _position, _education);
+$$;
+
+CREATE PROCEDURE teacherprofileChange(_id integer, _rank varchar(50), _grade varchar(50), _position varchar(50), _education varchar(50))
+LANGUAGE SQL
+AS $$
+    UPDATE public.teacherProfile
+    SET rank = _rank,
+        grade = _grade,
+        position = _position,
+        education = _education
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE teacherprofileDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.teacherProfile
+    WHERE id = _id;
+$$;
+
+-- procedure for table teacher : insert, update, delete
+CREATE PROCEDURE teacherAdd(_name varchar(50), _age integer, _phone varchar(20), _email varchar(50), _cathedra_id integer, _teacherProfile_id integer)
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.teacher (name, age, phone, email, cathedra_id, teacherProfile_id) VALUES
+        (_name, _age, _phone, _email, _cathedra_id, _teacherProfile_id);
+$$;
+
+CREATE PROCEDURE teacherChange(_id integer, _name varchar(50), _age integer, _phone varchar(20), _email varchar(50), _cathedra_id integer, _teacherProfile_id integer)
+LANGUAGE SQL
+AS $$
+    UPDATE public.teacher
+    SET name = _name,
+        age = _age,
+        phone = _phone,
+        email = _email,
+        cathedra_id = _cathedra_id,
+        teacherProfile_id = _teacherProfile_id
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE teacherDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.teacher
+    WHERE id = _id;
+$$;
+
+-- procedure for table specialty : insert, update, delete
+CREATE PROCEDURE specialtyAdd(_name varchar(50), _cipher varchar(10))
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.specialty (name, cipher) VALUES
+        (_name, _cipher);
+$$;
+
+CREATE PROCEDURE specialtyChange(_id integer, _name varchar(50), _cipher varchar(10))
+LANGUAGE SQL
+AS $$
+    UPDATE public.specialty
+    SET name = _name,
+        cipher = _cipher
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE specialtyDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.specialty
+    WHERE id = _id;
+$$;
+
+-- procedure for table group : insert, update, delete
+CREATE PROCEDURE groupAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
+        (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
+$$;
+
+CREATE PROCEDURE groupChange(_id integer, _cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
+LANGUAGE SQL
+AS $$
+    UPDATE public.group
+    SET cipher = _cipher,
+        course = _course,
+        studentsCount = _studentsCount,
+        cathedra_id = _cathedra_id,
+        specialty_id = _specialty_id
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE groupDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.group
+    WHERE id = _id;
+$$;
+
+-- procedure for table schedule : insert, update, delete
+CREATE PROCEDURE scheduleAdd(_subject_id integer, _group_id integer, _teacher_id integer, _classType varchar(20), _classroom_id integer, _classTime_id integer, _weekDay varchar(20))
+LANGUAGE SQL
+AS $$
+    INSERT INTO public.schedule (subject_id, group_id, teacher_id, classType, classroom_id, classTime_id, weekDay) VALUES
+        (_subject_id, _group_id, _teacher_id, _classType, _classroom_id, _classTime_id, _weekDay);
+$$;
+
+CREATE PROCEDURE scheduleChange(_id integer, _subject_id integer, _group_id integer, _teacher_id integer, _classType varchar(20), _classroom_id integer, _classTime_id integer, _weekDay varchar(20))
+LANGUAGE SQL
+AS $$
+    UPDATE public.schedule
+    SET subject_id = _subject_id,
+        group_id = _group_id,
+        teacher_id = _teacher_id,
+        classType = _classType,
+        classroom_id = _classroom_id,
+        classTime_id = _classTime_id,
+        weekDay = _weekDay
+    WHERE id = _id;
+$$;
+
+CREATE PROCEDURE scheduleDelete(_id integer)
+LANGUAGE SQL
+AS $$
+    DELETE FROM public.schedule
+    WHERE id = _id;
+$$;

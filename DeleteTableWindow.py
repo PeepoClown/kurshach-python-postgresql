@@ -49,12 +49,19 @@ class DeleteTableWindow(QMainWindow):
             connection = psycopg2.connect(self.connectionStr)
             cursor = connection.cursor()
 
-            # delete procedure
+            procedureName = str(self.tableName).lower() + "Delete"
+            tmp = self.comboBox.currentText()
+            tmp = tmp.split(',')
+            tmp = (tmp[0])[1:]
+            argsStr = "(" + tmp + ")"
 
-            msgBox = QMessageBox(QMessageBox.Information, "Delete", "Remove record: ",  # + string of record + of tableName
+            cursor.execute('CALL %s%s;' % (procedureName, argsStr))
+            connection.commit()
+
+            msgBox = QMessageBox(QMessageBox.Information, "Remove", "Delte record: " + argsStr,
                                  QMessageBox.Ok | QMessageBox.Cancel, self)
+            self.close()
         except Exception as exception:
             msgBox = QMessageBox(QMessageBox.Critical, "Error", "Error: " + str(exception),
                                  QMessageBox.Ok | QMessageBox.Cancel, self)
         msgBox.exec()
-        self.close()
