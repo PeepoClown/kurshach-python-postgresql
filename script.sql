@@ -590,6 +590,7 @@ CREATE TABLE public.teacherprofileLogs
 
 -- create trigger fucntion, that called on insert, update and delete records of teacherProfile table
 CREATE FUNCTION tr_createLog() RETURNS TRIGGER
+LANGUAGE plpgsql
 AS $$
     DECLARE
         valueStr    varchar(100);
@@ -621,9 +622,35 @@ AS $$
             RETURN NEW;
         END IF;
     END;
-$$ LANGUAGE plpgsql;
+$$;
 
 -- create trigger for table teaherProfile that called tr_createLog function
 CREATE TRIGGER tr_teacherprofile
 AFTER INSERT OR UPDATE OR DELETE ON public.teacherProfile
 FOR EACH ROW EXECUTE PROCEDURE tr_createLog();
+
+-- create procedure with rollback on ivalid transaction
+CREATE PROCEDURE rollbackIfInvalidAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    row     record;
+    flag    integer;
+BEGIN
+    flag = 0;
+    FOR row IN SELECT * FROM public.group
+    LOOP
+        IF row.cipher = _cipher THEN
+            RAISE NOTICE '% %', row.cipher, _cipher;
+            flag = 1;
+        END IF;
+    END LOOP;
+    INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
+        (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
+    IF flag = 1 THEN
+        ROLLBACK;
+    ELSE
+        COMMIT;
+    END IF;
+END;
+$$;
