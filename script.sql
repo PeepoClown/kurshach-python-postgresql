@@ -578,3 +578,52 @@ AS $$
     DELETE FROM public.schedule
     WHERE id = _id;
 $$;
+
+-- cteate table teacherprofileLogs for trigger test
+CREATE TABLE public.teacherprofileLogs
+(
+    id				serial		    NOT NULL,
+	msg	    		varchar(255)	NOT NULL,
+	logTime         time            NOT NULL,
+	CONSTRAINT PK_teacherprofileLogs PRIMARY KEY (id)
+);
+
+-- create trigger fucntion, that called on insert, update and delete records of teacherProfile table
+CREATE FUNCTION tr_createLog() RETURNS TRIGGER
+AS $$
+    DECLARE
+        valueStr    varchar(100);
+        msgStr      varchar(100);
+        delim       varchar(5);
+        resultStr   varchar(255);
+    BEGIN
+        delim = ' ';
+        IF TG_OP = 'INSERT' THEN
+            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
+            msgStr = 'Add new profile: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        ELSIF TG_OP = 'UPDATE' THEN
+            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
+            msgStr = 'Update profile: ' || OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education || ' to: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        ELSIF TG_OP = 'DELETE' THEN
+            valueStr = OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education;
+            msgStr = 'Delete profile: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        END IF;
+    END;
+$$ LANGUAGE plpgsql;
+
+-- create trigger for table teaherProfile that called tr_createLog function
+CREATE TRIGGER tr_teacherprofile
+AFTER INSERT OR UPDATE OR DELETE ON public.teacherProfile
+FOR EACH ROW EXECUTE PROCEDURE tr_createLog();

@@ -11,7 +11,7 @@ class UserWorkWindow(QMainWindow):
     def __init__(self, connectionStr):
         super().__init__()
 
-        self.setMinimumSize(QSize(1600, 900))
+        self.setMinimumSize(QSize(1600, 1000))
         self.connectionStr = connectionStr
         self.viewTableWin = 0
 
