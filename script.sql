@@ -1,10 +1,11 @@
 CREATE DATABASE scheduler; -- create db
 
-CREATE ROLE admin WITH LOGIN SUPERUSER CREATEDB CREATEROLE;
+CREATE ROLE admin WITH LOGIN SUPERUSER CREATEDB CREATEROLE PASSWORD '12345';
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin;
 CREATE USER dmitriy WITH PASSWORD '12345' IN ROLE admin;
+ALTER DATABASE scheduler OWNER TO dmitriy;
 
-CREATE ROLE usr WITH LOGIN;
+CREATE ROLE usr WITH LOGIN PASSWORD '12345';
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO usr;
 
 -- campus table
@@ -641,7 +642,6 @@ BEGIN
     FOR row IN SELECT * FROM public.group
     LOOP
         IF row.cipher = _cipher THEN
-            RAISE NOTICE '% %', row.cipher, _cipher;
             flag = 1;
         END IF;
     END LOOP;
@@ -652,5 +652,49 @@ BEGIN
     ELSE
         COMMIT;
     END IF;
+END;
+$$;
+
+-- function for multytable query with param and case operator
+CREATE FUNCTION selectGroupsByCourse(_course integer) RETURNS TABLE (GroupCipher varchar(50), Cathedra varchar(50), Capacity text)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.group.cipher, public.cathedra.name,
+    CASE
+        WHEN public.group.studentsCount < 20 THEN 'Недобор'
+        WHEN public.group.studentsCount <= 32 THEN 'Норма'
+        WHEN public.group.studentsCount > 32 THEN 'Перебор'
+    END
+    FROM public.group
+    LEFT JOIN public.cathedra ON public.cathedra.id = public.group.cathedra_id
+    WHERE public.group.course = _course;
+END;
+$$;
+
+-- function for multytable query with grouping and sum func call in having
+CREATE FUNCTION getTeachersByAge(_minAge integer) RETURNS TABLE (Cathedra varchar(50), Name varchar(50), Age integer)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.cathedra.name, public.teacher.name, public.teacher.age
+    FROM public.cathedra, public.teacher
+    WHERE public.cathedra.id = public.teacher.cathedra_id
+    GROUP BY public.teacher.name, public.cathedra.name, public.teacher.age
+    HAVING SUM(public.teacher.age) > _minAge;
+END;
+$$;
+
+-- function for query thath contains any predicat
+CREATE FUNCTION selectGroupsByWeekDay(_weekDay varchar(50)) RETURNS TABLE (GroupCipher varchar(50))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT public.group.cipher
+    FROM public.group
+    WHERE public.group.id = ANY(SELECT public.schedule.group_id FROM public.schedule WHERE public.schedule.weekDay = _weekDay);
 END;
 $$;

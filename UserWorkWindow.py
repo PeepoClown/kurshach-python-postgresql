@@ -11,7 +11,7 @@ class UserWorkWindow(QMainWindow):
     def __init__(self, connectionStr):
         super().__init__()
 
-        self.setMinimumSize(QSize(1600, 1000))
+        self.setMinimumSize(QSize(1600, 900))
         self.connectionStr = connectionStr
         self.viewTableWin = 0
 
@@ -31,12 +31,12 @@ class UserWorkWindow(QMainWindow):
         self.viewTableButtons = []
         for i in range(0, len(self.tableNames)):
             currLabel = QLabel("Table: " + self.tableNames[i], self)
-            currLabel.setGeometry(450, 100 + i * 70, 150, 30)
+            currLabel.setGeometry(350, 70 + i * 60, 180, 30)
             currLabel.setStyleSheet('''
                 font-size: 16px;
             ''')
             self.viewTableButtons.append(QPushButton("View", self))
-            self.viewTableButtons[i].setGeometry(800, 100 + i * 70, 150, 30)
+            self.viewTableButtons[i].setGeometry(700, 70 + i * 60, 150, 30)
             self.viewTableButtons[i].setStyleSheet('''
                 font-size: 18px;
                 color: #ede8df;

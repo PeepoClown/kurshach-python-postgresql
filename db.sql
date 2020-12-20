@@ -261,6 +261,26 @@ $$;
 ALTER PROCEDURE public.facultydelete(_id integer) OWNER TO dmitriy;
 
 --
+-- Name: getteachersbyage(integer); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.getteachersbyage(_minage integer) RETURNS TABLE(cathedra character varying, name character varying, age integer)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.cathedra.name, public.teacher.name, public.teacher.age
+    FROM public.cathedra, public.teacher
+    WHERE public.cathedra.id = public.teacher.cathedra_id
+    GROUP BY public.teacher.name, public.cathedra.name, public.teacher.age
+    HAVING SUM(public.teacher.age) > _minAge;
+END;
+$$;
+
+
+ALTER FUNCTION public.getteachersbyage(_minage integer) OWNER TO dmitriy;
+
+--
 -- Name: groupadd(character varying, integer, integer, integer, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
 --
 
@@ -306,6 +326,37 @@ $$;
 
 
 ALTER PROCEDURE public.groupdelete(_id integer) OWNER TO dmitriy;
+
+--
+-- Name: rollbackifinvalidadd(character varying, integer, integer, integer, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
+--
+
+CREATE PROCEDURE public.rollbackifinvalidadd(_cipher character varying, _course integer, _studentscount integer, _cathedra_id integer, _specialty_id integer)
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    row     record;
+    flag    integer;
+BEGIN
+    flag = 0;
+    FOR row IN SELECT * FROM public.group
+    LOOP
+        IF row.cipher = _cipher THEN
+            flag = 1;
+        END IF;
+    END LOOP;
+    INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
+        (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
+    IF flag = 1 THEN
+        ROLLBACK;
+    ELSE
+        COMMIT;
+    END IF;
+END;
+$$;
+
+
+ALTER PROCEDURE public.rollbackifinvalidadd(_cipher character varying, _course integer, _studentscount integer, _cathedra_id integer, _specialty_id integer) OWNER TO dmitriy;
 
 --
 -- Name: scheduleadd(integer, integer, integer, character varying, integer, integer, character varying); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -355,6 +406,48 @@ $$;
 
 
 ALTER PROCEDURE public.scheduledelete(_id integer) OWNER TO dmitriy;
+
+--
+-- Name: selectgroupsbycourse(integer); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.selectgroupsbycourse(_course integer) RETURNS TABLE(groupcipher character varying, cathedra character varying, capacity text)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.group.cipher, public.cathedra.name,
+    CASE
+        WHEN public.group.studentsCount < 20 THEN 'Недобор'
+        WHEN public.group.studentsCount <= 32 THEN 'Норма'
+        WHEN public.group.studentsCount > 32 THEN 'Перебор'
+    END
+    FROM public.group
+    LEFT JOIN public.cathedra ON public.cathedra.id = public.group.cathedra_id
+    WHERE public.group.course = _course;
+END;
+$$;
+
+
+ALTER FUNCTION public.selectgroupsbycourse(_course integer) OWNER TO dmitriy;
+
+--
+-- Name: selectgroupsbyweekday(character varying); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.selectgroupsbyweekday(_weekday character varying) RETURNS TABLE(groupcipher character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT public.group.cipher
+    FROM public.group
+    WHERE public.group.id = ANY(SELECT public.schedule.group_id FROM public.schedule WHERE public.schedule.weekDay = _weekDay);
+END;
+$$;
+
+
+ALTER FUNCTION public.selectgroupsbyweekday(_weekday character varying) OWNER TO dmitriy;
 
 --
 -- Name: specialtyadd(character varying, character varying); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -1430,7 +1523,7 @@ SELECT pg_catalog.setval('public.faculty_id_seq', 7, true);
 -- Name: group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.group_id_seq', 13, true);
+SELECT pg_catalog.setval('public.group_id_seq', 30, true);
 
 
 --
@@ -1929,6 +2022,13 @@ GRANT SELECT ON TABLE public."group" TO usr;
 
 
 --
+-- Name: TABLE schedule; Type: ACL; Schema: public; Owner: dmitriy
+--
+
+GRANT SELECT ON TABLE public.schedule TO usr;
+
+
+--
 -- Name: TABLE specialty; Type: ACL; Schema: public; Owner: dmitriy
 --
 
@@ -1958,6 +2058,13 @@ GRANT SELECT ON TABLE public.teacher TO usr;
 
 GRANT ALL ON TABLE public.teacherprofile TO admin;
 GRANT SELECT ON TABLE public.teacherprofile TO usr;
+
+
+--
+-- Name: TABLE teacherprofilelogs; Type: ACL; Schema: public; Owner: dmitriy
+--
+
+GRANT SELECT ON TABLE public.teacherprofilelogs TO usr;
 
 
 --
