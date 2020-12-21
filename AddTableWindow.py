@@ -9,7 +9,7 @@ class AddTableWindow(QMainWindow):
     def __init__(self, tableName, connectionStr):
         super().__init__()
 
-        self.setMinimumSize(QSize(1200, 600))
+        self.setMinimumSize(QSize(1200, 500))
         self.tableName = tableName
         self.connectionStr = connectionStr
         self.columns = []

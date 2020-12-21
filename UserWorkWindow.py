@@ -11,7 +11,7 @@ class UserWorkWindow(QMainWindow):
     def __init__(self, connectionStr):
         super().__init__()
 
-        self.setMinimumSize(QSize(1600, 900))
+        self.setMinimumSize(QSize(1200, 900))
         self.connectionStr = connectionStr
         self.viewTableWin = 0
 
@@ -31,7 +31,7 @@ class UserWorkWindow(QMainWindow):
         self.viewTableButtons = []
         for i in range(0, len(self.tableNames)):
             currLabel = QLabel("Table: " + self.tableNames[i], self)
-            currLabel.setGeometry(350, 70 + i * 60, 180, 30)
+            currLabel.setGeometry(350, 70 + i * 60, 200, 30)
             currLabel.setStyleSheet('''
                 font-size: 16px;
             ''')

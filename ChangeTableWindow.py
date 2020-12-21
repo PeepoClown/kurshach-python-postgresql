@@ -9,14 +9,14 @@ class ChangeTableWindow(QMainWindow):
     def __init__(self, tableName, connectionStr):
         super().__init__()
 
-        self.setMinimumSize(QSize(1400, 800))
+        self.setMinimumSize(QSize(1400, 600))
         self.tableName = tableName
         self.connectionStr = connectionStr
 
         self.checkLabel = QLabel("Change record: ", self)
-        self.checkLabel.setGeometry(300, 80, 100, 30)
+        self.checkLabel.setGeometry(300, 50, 100, 30)
         self.checkRecordBox = QComboBox(self)
-        self.checkRecordBox.setGeometry(450, 80, 750, 30)
+        self.checkRecordBox.setGeometry(450, 50, 750, 30)
 
         try:
             connection = psycopg2.connect(self.connectionStr)
@@ -55,10 +55,10 @@ class ChangeTableWindow(QMainWindow):
             for i in range(0, len(self.columns)):
                 self.labels.append(QLabel("%s: " % self.columns[i], self))
                 labelW = 200 + widthCoeff * 400
-                self.labels[i].setGeometry(labelW, 200 + heightCoeff * 100, 100, 30)
+                self.labels[i].setGeometry(labelW, 120 + heightCoeff * 100, 100, 30)
                 if str(self.columns[i]).find("id") == -1:
                     self.lineEdits.append(QLineEdit(self))
-                    self.lineEdits[lineEditsCounter].setGeometry(labelW + 120, 200 + heightCoeff * 100, 200, 30)
+                    self.lineEdits[lineEditsCounter].setGeometry(labelW + 120, 120 + heightCoeff * 100, 200, 30)
                     lineEditsCounter += 1
                 else:
                     data = []
@@ -73,7 +73,7 @@ class ChangeTableWindow(QMainWindow):
                     self.comboBoxes.append(QComboBox(self))
                     for k in data:
                         self.comboBoxes[comboBoxesCounter].addItem(k)
-                    self.comboBoxes[comboBoxesCounter].setGeometry(labelW + 120, 200 + heightCoeff * 100, 200, 30)
+                    self.comboBoxes[comboBoxesCounter].setGeometry(labelW + 120, 120 + heightCoeff * 100, 200, 30)
                     comboBoxesCounter += 1
                 widthCoeff += 1
                 if (i + 1) % 3 == 0:
@@ -81,7 +81,7 @@ class ChangeTableWindow(QMainWindow):
                     widthCoeff = 0
 
             self.submitButton = QPushButton("Submit", self)
-            self.submitButton.setGeometry(700, 400 + heightCoeff * 100, 150, 40)
+            self.submitButton.setGeometry(700, 250 + heightCoeff * 100, 150, 40)
             self.submitButton.setStyleSheet('''
                 font-size: 18px;
                 color: #ede8df;
