@@ -30,7 +30,8 @@ class AdminWorkWindow(QMainWindow):
                             \'public\' ORDER BY table_name;')
             self.tableNames = []
             for i in cursor.fetchall():
-                self.tableNames.append(i[0])
+                if i[0] != 'chiefbygroup':
+                    self.tableNames.append(i[0])
         except Exception as exception:
             msgBox = QMessageBox(QMessageBox.Critical, "Error", "Error: " + str(exception),
                                  QMessageBox.Ok | QMessageBox.Cancel, self)

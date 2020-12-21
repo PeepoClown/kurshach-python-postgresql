@@ -580,7 +580,7 @@ AS $$
     WHERE id = _id;
 $$;
 
--- cteate table teacherprofileLogs for trigger test
+-- create table teacherprofileLogs for trigger test
 CREATE TABLE public.teacherprofileLogs
 (
     id				serial		    NOT NULL,
@@ -589,7 +589,8 @@ CREATE TABLE public.teacherprofileLogs
 	CONSTRAINT PK_teacherprofileLogs PRIMARY KEY (id)
 );
 
--- create trigger fucntion, that called on insert, update and delete records of teacherProfile table
+-- task 4
+-- create trigger function, that called on insert, update and delete records of teacherProfile table
 CREATE FUNCTION tr_createLog() RETURNS TRIGGER
 LANGUAGE plpgsql
 AS $$
@@ -630,7 +631,8 @@ CREATE TRIGGER tr_teacherprofile
 AFTER INSERT OR UPDATE OR DELETE ON public.teacherProfile
 FOR EACH ROW EXECUTE PROCEDURE tr_createLog();
 
--- create procedure with rollback on ivalid transaction
+-- task 6
+-- create procedure with rollback on invalid transaction
 CREATE PROCEDURE rollbackIfInvalidAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
 LANGUAGE plpgsql
 AS $$
@@ -655,6 +657,7 @@ BEGIN
 END;
 $$;
 
+-- task 2a
 -- function for multytable query with param and case operator
 CREATE FUNCTION selectGroupsByCourse(_course integer) RETURNS TABLE (GroupCipher varchar(50), Cathedra varchar(50), Capacity text)
 LANGUAGE plpgsql
@@ -673,21 +676,66 @@ BEGIN
 END;
 $$;
 
--- function for multytable query with grouping and sum func call in having
-CREATE FUNCTION getTeachersByAge(_minAge integer) RETURNS TABLE (Cathedra varchar(50), Name varchar(50), Age integer)
+-- task 2b
+-- create multytable view
+CREATE VIEW chiefByGroup AS
+SELECT public.group.cipher, public.teacher.name
+FROM public.group, public.teacher
+LEFT JOIN public.cathedra ON public.cathedra.chief_id = public.teacher.id
+WHERE public.group.cathedra_id = public.cathedra.id;
+-- function for select view fields in some order
+CREATE FUNCTION getChiefByGroup(_field varchar(50)) RETURNS TABLE (GroupCipher varchar(50), ChiefName varchar(50))
 LANGUAGE plpgsql
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT public.cathedra.name, public.teacher.name, public.teacher.age
-    FROM public.cathedra, public.teacher
-    WHERE public.cathedra.id = public.teacher.cathedra_id
-    GROUP BY public.teacher.name, public.cathedra.name, public.teacher.age
-    HAVING SUM(public.teacher.age) > _minAge;
+    SELECT * FROM chiefByGroup
+    ORDER BY CASE
+        WHEN _field = 'g' THEN chiefByGroup.cipher
+        WHEN _field = 'c' THEN chiefByGroup.name
+        ELSE chiefByGroup.cipher
+    END;
 END;
 $$;
 
--- function for query thath contains any predicat
+-- task 2c
+-- select all teachers which work chief of cathedra and faculty
+CREATE FUNCTION getChiefOfCheifs() RETURNS TABLE (Name varchar(50), Age integer, Phone varchar(50), Email varchar(50))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT subquery.name, subquery.age, subquery.phone, subquery.email
+    FROM (SELECT teacher.id, teacher.name, teacher.age, teacher.phone, teacher.email
+          FROM public.teacher AS teacher
+          WHERE teacher.id IN (SELECT cathedra.chief_id
+                               FROM public.cathedra AS cathedra)
+    ) AS subquery
+    WHERE subquery.id IN (SELECT faculty.chief_id
+                          FROM public.faculty AS faculty
+                          LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
+                          WHERE public.teacher.name = subquery.name
+    );
+END;
+$$;
+
+-- task 2d
+-- function for multytable query with grouping and count func call and having operator
+CREATE FUNCTION getClassesByTeacher(_pairs integer) RETURNS TABLE (TeacherName varchar(50), WeekDay varchar(50), Pairs bigint)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.teacher.name, public.schedule.weekDay, COUNT(public.schedule.id)
+    FROM public.teacher
+    LEFT JOIN public.schedule ON public.teacher.id = public.schedule.teacher_id
+    GROUP BY public.teacher.name, public.schedule.weekDay
+    HAVING COUNT(public.schedule.id) = _pairs;
+END;
+$$;
+
+-- task 2e
+-- function for query that contains any predicate
 CREATE FUNCTION selectGroupsByWeekDay(_weekDay varchar(50)) RETURNS TABLE (GroupCipher varchar(50))
 LANGUAGE plpgsql
 AS $$
