@@ -1,8 +1,0 @@
-Установка python3 - brew
-Установка pycharm - msc
-Установка postgres - msc
-Установка psycopg2 - pip
-Установка pyqt5 - pip
-Не забыть настроть $PATH
-поменять hba_config
-поменять пароли у стандартных узеров : ALTER ROLE name WITH PASSWORD pass;
