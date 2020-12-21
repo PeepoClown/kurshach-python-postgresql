@@ -261,24 +261,71 @@ $$;
 ALTER PROCEDURE public.facultydelete(_id integer) OWNER TO dmitriy;
 
 --
--- Name: getteachersbyage(integer); Type: FUNCTION; Schema: public; Owner: dmitriy
+-- Name: getchiefbygroup(character varying); Type: FUNCTION; Schema: public; Owner: dmitriy
 --
 
-CREATE FUNCTION public.getteachersbyage(_minage integer) RETURNS TABLE(cathedra character varying, name character varying, age integer)
+CREATE FUNCTION public.getchiefbygroup(_field character varying) RETURNS TABLE(groupcipher character varying, chiefname character varying)
     LANGUAGE plpgsql
     AS $$
 BEGIN
     RETURN QUERY
-    SELECT public.cathedra.name, public.teacher.name, public.teacher.age
-    FROM public.cathedra, public.teacher
-    WHERE public.cathedra.id = public.teacher.cathedra_id
-    GROUP BY public.teacher.name, public.cathedra.name, public.teacher.age
-    HAVING SUM(public.teacher.age) > _minAge;
+    SELECT * FROM chiefByGroup
+    ORDER BY CASE
+        WHEN _field = 'g' THEN chiefByGroup.cipher
+        WHEN _field = 'c' THEN chiefByGroup.name
+        ELSE chiefByGroup.cipher
+    END;
 END;
 $$;
 
 
-ALTER FUNCTION public.getteachersbyage(_minage integer) OWNER TO dmitriy;
+ALTER FUNCTION public.getchiefbygroup(_field character varying) OWNER TO dmitriy;
+
+--
+-- Name: getchiefofcheifs(); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.getchiefofcheifs() RETURNS TABLE(name character varying, age integer, phone character varying, email character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT subquery.name, subquery.age, subquery.phone, subquery.email
+    FROM public.cathedra AS cathedra,
+    LATERAL  (SELECT teacher.id, teacher.name, teacher.age, teacher.phone, teacher.email
+              FROM public.teacher AS teacher
+              WHERE teacher.id = cathedra.chief_id
+    ) AS subquery
+    WHERE subquery.id IN (SELECT faculty.chief_id
+                          FROM public.faculty AS faculty
+                          LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
+                          WHERE public.teacher.name = subquery.name
+    );
+END;
+$$;
+
+
+ALTER FUNCTION public.getchiefofcheifs() OWNER TO dmitriy;
+
+--
+-- Name: getclassesbyteacher(integer); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.getclassesbyteacher(_pairs integer) RETURNS TABLE(teachername character varying, weekday character varying, pairs bigint)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.teacher.name, public.schedule.weekDay, COUNT(public.schedule.id)
+    FROM public.teacher
+    LEFT JOIN public.schedule ON public.teacher.id = public.schedule.teacher_id
+    GROUP BY public.teacher.name, public.schedule.weekDay
+    HAVING COUNT(public.schedule.id) = _pairs;
+END;
+$$;
+
+
+ALTER FUNCTION public.getclassesbyteacher(_pairs integer) OWNER TO dmitriy;
 
 --
 -- Name: groupadd(character varying, integer, integer, integer, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -754,6 +801,54 @@ ALTER SEQUENCE public.cathedra_id_seq OWNED BY public.cathedra.id;
 
 
 --
+-- Name: group; Type: TABLE; Schema: public; Owner: dmitriy
+--
+
+CREATE TABLE public."group" (
+    id integer NOT NULL,
+    cipher character varying(50) NOT NULL,
+    course integer NOT NULL,
+    studentscount integer NOT NULL,
+    cathedra_id integer NOT NULL,
+    specialty_id integer NOT NULL
+);
+
+
+ALTER TABLE public."group" OWNER TO dmitriy;
+
+--
+-- Name: teacher; Type: TABLE; Schema: public; Owner: dmitriy
+--
+
+CREATE TABLE public.teacher (
+    id integer NOT NULL,
+    name character varying(50) NOT NULL,
+    age integer NOT NULL,
+    phone character varying(20) NOT NULL,
+    email character varying(50) NOT NULL,
+    cathedra_id integer NOT NULL,
+    teacherprofile_id integer NOT NULL
+);
+
+
+ALTER TABLE public.teacher OWNER TO dmitriy;
+
+--
+-- Name: chiefbygroup; Type: VIEW; Schema: public; Owner: dmitriy
+--
+
+CREATE VIEW public.chiefbygroup AS
+ SELECT "group".cipher,
+    teacher.name
+   FROM public."group",
+    (public.teacher
+     LEFT JOIN public.cathedra ON ((cathedra.chief_id = teacher.id)))
+  WHERE ("group".cathedra_id = cathedra.id);
+
+
+ALTER TABLE public.chiefbygroup OWNER TO dmitriy;
+
+--
 -- Name: classroom; Type: TABLE; Schema: public; Owner: dmitriy
 --
 
@@ -860,22 +955,6 @@ ALTER TABLE public.faculty_id_seq OWNER TO dmitriy;
 
 ALTER SEQUENCE public.faculty_id_seq OWNED BY public.faculty.id;
 
-
---
--- Name: group; Type: TABLE; Schema: public; Owner: dmitriy
---
-
-CREATE TABLE public."group" (
-    id integer NOT NULL,
-    cipher character varying(50) NOT NULL,
-    course integer NOT NULL,
-    studentscount integer NOT NULL,
-    cathedra_id integer NOT NULL,
-    specialty_id integer NOT NULL
-);
-
-
-ALTER TABLE public."group" OWNER TO dmitriy;
 
 --
 -- Name: group_id_seq; Type: SEQUENCE; Schema: public; Owner: dmitriy
@@ -1007,23 +1086,6 @@ ALTER TABLE public.subject_id_seq OWNER TO dmitriy;
 
 ALTER SEQUENCE public.subject_id_seq OWNED BY public.subject.id;
 
-
---
--- Name: teacher; Type: TABLE; Schema: public; Owner: dmitriy
---
-
-CREATE TABLE public.teacher (
-    id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    age integer NOT NULL,
-    phone character varying(20) NOT NULL,
-    email character varying(50) NOT NULL,
-    cathedra_id integer NOT NULL,
-    teacherprofile_id integer NOT NULL
-);
-
-
-ALTER TABLE public.teacher OWNER TO dmitriy;
 
 --
 -- Name: teacher_id_seq; Type: SEQUENCE; Schema: public; Owner: dmitriy
@@ -1516,7 +1578,7 @@ SELECT pg_catalog.setval('public.classtime_id_seq', 9, true);
 -- Name: faculty_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.faculty_id_seq', 7, true);
+SELECT pg_catalog.setval('public.faculty_id_seq', 9, true);
 
 
 --
@@ -1551,7 +1613,7 @@ SELECT pg_catalog.setval('public.subject_id_seq', 10, true);
 -- Name: teacher_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.teacher_id_seq', 13, true);
+SELECT pg_catalog.setval('public.teacher_id_seq', 15, true);
 
 
 --
@@ -1990,6 +2052,22 @@ GRANT SELECT ON TABLE public.cathedra TO usr;
 
 
 --
+-- Name: TABLE "group"; Type: ACL; Schema: public; Owner: dmitriy
+--
+
+GRANT ALL ON TABLE public."group" TO admin;
+GRANT SELECT ON TABLE public."group" TO usr;
+
+
+--
+-- Name: TABLE teacher; Type: ACL; Schema: public; Owner: dmitriy
+--
+
+GRANT ALL ON TABLE public.teacher TO admin;
+GRANT SELECT ON TABLE public.teacher TO usr;
+
+
+--
 -- Name: TABLE classroom; Type: ACL; Schema: public; Owner: dmitriy
 --
 
@@ -2014,14 +2092,6 @@ GRANT SELECT ON TABLE public.faculty TO usr;
 
 
 --
--- Name: TABLE "group"; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public."group" TO admin;
-GRANT SELECT ON TABLE public."group" TO usr;
-
-
---
 -- Name: TABLE schedule; Type: ACL; Schema: public; Owner: dmitriy
 --
 
@@ -2042,14 +2112,6 @@ GRANT SELECT ON TABLE public.specialty TO usr;
 
 GRANT ALL ON TABLE public.subject TO admin;
 GRANT SELECT ON TABLE public.subject TO usr;
-
-
---
--- Name: TABLE teacher; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.teacher TO admin;
-GRANT SELECT ON TABLE public.teacher TO usr;
 
 
 --

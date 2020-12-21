@@ -706,10 +706,10 @@ AS $$
 BEGIN
     RETURN QUERY
     SELECT subquery.name, subquery.age, subquery.phone, subquery.email
-    FROM (SELECT teacher.id, teacher.name, teacher.age, teacher.phone, teacher.email
-          FROM public.teacher AS teacher
-          WHERE teacher.id IN (SELECT cathedra.chief_id
-                               FROM public.cathedra AS cathedra)
+    FROM public.cathedra AS cathedra,
+    LATERAL  (SELECT teacher.id, teacher.name, teacher.age, teacher.phone, teacher.email
+              FROM public.teacher AS teacher
+              WHERE teacher.id = cathedra.chief_id
     ) AS subquery
     WHERE subquery.id IN (SELECT faculty.chief_id
                           FROM public.faculty AS faculty
