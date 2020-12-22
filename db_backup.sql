@@ -320,12 +320,54 @@ BEGIN
     FROM public.teacher
     LEFT JOIN public.schedule ON public.teacher.id = public.schedule.teacher_id
     GROUP BY public.teacher.name, public.schedule.weekDay
-    HAVING COUNT(public.schedule.id) = _pairs;
+    HAVING COUNT(public.schedule.id) = _pairs
+    ORDER BY public.teacher.name;
 END;
 $$;
 
 
 ALTER FUNCTION public.getclassesbyteacher(_pairs integer) OWNER TO dmitriy;
+
+--
+-- Name: getoldestteacher(); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.getoldestteacher() RETURNS character varying
+    LANGUAGE plpgsql
+    AS $$
+DECLARE
+    ret varchar(50);
+BEGIN
+    ret = (SELECT public.teacher.name
+           FROM public.teacher
+           WHERE public.teacher.age IN (SELECT MAX(public.teacher.age)
+                                        FROM public.teacher));
+    RETURN ret;
+END;
+$$;
+
+
+ALTER FUNCTION public.getoldestteacher() OWNER TO dmitriy;
+
+--
+-- Name: getteachersbyage(integer); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.getteachersbyage(_minage integer) RETURNS TABLE(cathedra character varying, name character varying, age integer)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.cathedra.name, public.teacher.name, public.teacher.age
+    FROM public.cathedra, public.teacher
+    WHERE public.cathedra.id = public.teacher.cathedra_id
+    GROUP BY public.teacher.name, public.cathedra.name, public.teacher.age
+    HAVING SUM(public.teacher.age) > _minAge;
+END;
+$$;
+
+
+ALTER FUNCTION public.getteachersbyage(_minage integer) OWNER TO dmitriy;
 
 --
 -- Name: groupadd(character varying, integer, integer, integer, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -382,22 +424,23 @@ CREATE PROCEDURE public.rollbackifinvalidadd(_cipher character varying, _course 
     LANGUAGE plpgsql
     AS $$
 DECLARE
+    cur     refcursor;
     row     record;
     flag    integer;
 BEGIN
     flag = 0;
-    FOR row IN SELECT * FROM public.group
+    OPEN cur FOR SELECT * FROM public.group;
     LOOP
+        FETCH cur INTO row;
         IF row.cipher = _cipher THEN
             flag = 1;
         END IF;
+        EXIT WHEN NOT FOUND;
     END LOOP;
-    INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
-        (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
-    IF flag = 1 THEN
-        ROLLBACK;
-    ELSE
-        COMMIT;
+    CLOSE cur;
+    IF flag = 0 THEN
+        INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
+            (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
     END IF;
 END;
 $$;
@@ -495,6 +538,29 @@ $$;
 
 
 ALTER FUNCTION public.selectgroupsbyweekday(_weekday character varying) OWNER TO dmitriy;
+
+--
+-- Name: showfreeclassrooms(integer, character varying); Type: FUNCTION; Schema: public; Owner: dmitriy
+--
+
+CREATE FUNCTION public.showfreeclassrooms(_pair integer, _weekday character varying) RETURNS TABLE(classroom character varying)
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+RETURN QUERY
+    SELECT public.classroom.name
+    FROM public.classroom
+    WHERE public.classroom.name NOT IN (
+        SELECT public.classroom.name
+        FROM public.classroom, public.schedule
+        WHERE public.classroom.id = public.schedule.classroom_id and
+              public.schedule.weekDay = _weekDay and
+              public.schedule.classTime_id = _pair);
+END;
+$$;
+
+
+ALTER FUNCTION public.showfreeclassrooms(_pair integer, _weekday character varying) OWNER TO dmitriy;
 
 --
 -- Name: specialtyadd(character varying, character varying); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -1578,14 +1644,14 @@ SELECT pg_catalog.setval('public.classtime_id_seq', 9, true);
 -- Name: faculty_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.faculty_id_seq', 9, true);
+SELECT pg_catalog.setval('public.faculty_id_seq', 7, true);
 
 
 --
 -- Name: group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.group_id_seq', 30, true);
+SELECT pg_catalog.setval('public.group_id_seq', 66, true);
 
 
 --
@@ -1613,7 +1679,7 @@ SELECT pg_catalog.setval('public.subject_id_seq', 10, true);
 -- Name: teacher_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.teacher_id_seq', 15, true);
+SELECT pg_catalog.setval('public.teacher_id_seq', 13, true);
 
 
 --
