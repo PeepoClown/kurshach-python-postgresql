@@ -743,11 +743,12 @@ BEGIN
     END LOOP;
     CLOSE cur;
     START TRANSACTION
+        IF flag = 0 THEN
         INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
             (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
         IF flag = 1 THEN
             ROLLBACK;
-        END IF;
+       END IF;
     COMMIT;
 END;
 $$;

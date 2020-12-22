@@ -13,7 +13,7 @@ class TaskWindow(QMainWindow):
         self.setMinimumSize(QSize(700, 560))
         self.connectionStr = connectionStr
         self.desc = QTextEdit(self)
-        self.desc.setGeometry(200, 100, 300, 100)
+        self.desc.setGeometry(200, 60, 300, 150)
         self.lEdit = 0
         self.cBox = 0
         self.t6LineEdits = []
@@ -144,7 +144,7 @@ class TaskWindow(QMainWindow):
 
     def task2d(self):
         label = QLabel("Enter count of pairs: ", self)
-        label.setGeometry(150, 300, 130, 30)
+        label.setGeometry(150, 300, 150, 30)
         self.lEdit = QLineEdit(self)
         self.lEdit.setGeometry(320, 300, 120, 30)
         submitBtn = QPushButton('Submit', self)
