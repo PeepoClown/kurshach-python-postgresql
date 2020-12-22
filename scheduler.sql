@@ -580,83 +580,6 @@ AS $$
     WHERE id = _id;
 $$;
 
--- create table teacherprofileLogs for trigger test
-CREATE TABLE public.teacherprofileLogs
-(
-    id				serial		    NOT NULL,
-	msg	    		varchar(255)	NOT NULL,
-	logTime         time            NOT NULL,
-	CONSTRAINT PK_teacherprofileLogs PRIMARY KEY (id)
-);
-
--- task 4
--- create trigger function, that called on insert, update and delete records of teacherProfile table
-CREATE FUNCTION tr_createLog() RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-    DECLARE
-        valueStr    varchar(100);
-        msgStr      varchar(100);
-        delim       varchar(5);
-        resultStr   varchar(255);
-    BEGIN
-        delim = ' ';
-        IF TG_OP = 'INSERT' THEN
-            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
-            msgStr = 'Add new profile: ';
-            resultStr = msgStr || valueStr;
-            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
-                (resultStr, NOW());
-            RETURN NEW;
-        ELSIF TG_OP = 'UPDATE' THEN
-            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
-            msgStr = 'Update profile: ' || OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education || ' to: ';
-            resultStr = msgStr || valueStr;
-            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
-                (resultStr, NOW());
-            RETURN NEW;
-        ELSIF TG_OP = 'DELETE' THEN
-            valueStr = OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education;
-            msgStr = 'Delete profile: ';
-            resultStr = msgStr || valueStr;
-            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
-                (resultStr, NOW());
-            RETURN NEW;
-        END IF;
-    END;
-$$;
-
--- create trigger for table teaherProfile that called tr_createLog function
-CREATE TRIGGER tr_teacherprofile
-AFTER INSERT OR UPDATE OR DELETE ON public.teacherProfile
-FOR EACH ROW EXECUTE PROCEDURE tr_createLog();
-
--- task 6
--- create procedure with rollback on invalid transaction
-CREATE PROCEDURE rollbackIfInvalidAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    row     record;
-    flag    integer;
-BEGIN
-    flag = 0;
-    FOR row IN SELECT * FROM public.group
-    LOOP
-        IF row.cipher = _cipher THEN
-            flag = 1;
-        END IF;
-    END LOOP;
-    INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
-        (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
-    IF flag = 1 THEN
-        ROLLBACK;
-    ELSE
-        COMMIT;
-    END IF;
-END;
-$$;
-
 -- task 2a
 -- function for multytable query with param and case operator
 CREATE FUNCTION selectGroupsByCourse(_course integer) RETURNS TABLE (GroupCipher varchar(50), Cathedra varchar(50), Capacity text)
@@ -730,7 +653,8 @@ BEGIN
     FROM public.teacher
     LEFT JOIN public.schedule ON public.teacher.id = public.schedule.teacher_id
     GROUP BY public.teacher.name, public.schedule.weekDay
-    HAVING COUNT(public.schedule.id) = _pairs;
+    HAVING COUNT(public.schedule.id) = _pairs
+    ORDER BY public.teacher.name;
 END;
 $$;
 
@@ -741,8 +665,121 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT DISTINCT public.group.cipher
+    SELECT public.group.cipher
     FROM public.group
     WHERE public.group.id = ANY(SELECT public.schedule.group_id FROM public.schedule WHERE public.schedule.weekDay = _weekDay);
+END;
+$$;
+
+-- create table teacherprofileLogs for trigger test
+CREATE TABLE public.teacherprofileLogs
+(
+    id				serial		    NOT NULL,
+	msg	    		varchar(255)	NOT NULL,
+	logTime         time            NOT NULL,
+	CONSTRAINT PK_teacherprofileLogs PRIMARY KEY (id)
+);
+
+-- task 4
+-- create trigger function, that called on insert, update and delete records of teacherProfile table
+CREATE FUNCTION tr_createLog() RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+    DECLARE
+        valueStr    varchar(100);
+        msgStr      varchar(100);
+        delim       varchar(5);
+        resultStr   varchar(255);
+    BEGIN
+        delim = ' ';
+        IF TG_OP = 'INSERT' THEN
+            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
+            msgStr = 'Add new profile: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        ELSIF TG_OP = 'UPDATE' THEN
+            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
+            msgStr = 'Update profile: ' || OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education || ' to: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        ELSIF TG_OP = 'DELETE' THEN
+            valueStr = OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education;
+            msgStr = 'Delete profile: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        END IF;
+    END;
+$$;
+-- create trigger for table teaherProfile that called tr_createLog function
+CREATE TRIGGER tr_teacherprofile
+AFTER INSERT OR UPDATE OR DELETE ON public.teacherProfile
+FOR EACH ROW EXECUTE PROCEDURE tr_createLog();
+
+-- task 6, task 7
+-- create procedure with rollback on invalid transaction(passing cipher that already exist)
+-- in procedure cursor was created
+CREATE PROCEDURE rollbackIfInvalidAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    cur     refcursor;
+    row     record;
+    flag    integer;
+BEGIN
+    flag = 0;
+    OPEN cur FOR SELECT * FROM public.group;
+    LOOP
+        FETCH cur INTO row;
+        IF row.cipher = _cipher THEN
+            flag = 1;
+        END IF;
+        EXIT WHEN NOT FOUND;
+    END LOOP;
+    CLOSE cur;
+    START TRANSACTION
+        INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
+            (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
+        IF flag = 1 THEN
+            ROLLBACK;
+        END IF;
+    COMMIT;
+END;
+$$;
+
+-- task 8.1 function that returns the oldest teacher - scalar returns type
+CREATE FUNCTION getOldestTeacher() RETURNS varchar(50)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    ret varchar(50);
+BEGIN
+    ret = (SELECT public.teacher.name
+           FROM public.teacher
+           WHERE public.teacher.age IN (SELECT MAX(public.teacher.age)
+                                        FROM public.teacher));
+    RETURN ret;
+END;
+$$;
+
+-- task 8.2 function for selection of available classrooms - table returns type
+CREATE FUNCTION showFreeClassrooms(_pair integer, _weekDay varchar(50)) RETURNS TABLE (Classroom varchar(50))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+RETURN QUERY
+    SELECT public.classroom.name
+    FROM public.classroom
+    WHERE public.classroom.name NOT IN (
+        SELECT public.classroom.name
+        FROM public.classroom, public.schedule
+        WHERE public.classroom.id = public.schedule.classroom_id and
+              public.schedule.weekDay = _weekDay and
+              public.schedule.classTime_id = _pair);
 END;
 $$;
