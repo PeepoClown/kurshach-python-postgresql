@@ -615,7 +615,7 @@ BEGIN
         (SELECT public.faculty.name FROM public.faculty WHERE public.faculty.id = 2)
     FROM
         (SELECT * FROM public.teacher) AS teacher
-        LEFT JOIN LATERAL (SELECT * FROM public.cathedra) AS cathedra
+        INNER JOIN LATERAL (SELECT * FROM public.cathedra WHERE teacher.id = cathedra.chief_id) AS cathedra
         ON teacher.id = cathedra.chief_id
     WHERE
         teacher.id IN (SELECT faculty.chief_id
