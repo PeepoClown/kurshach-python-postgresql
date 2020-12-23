@@ -300,7 +300,6 @@ AS $$
     INSERT INTO public.campus (name, adress, phone, workStart, workEnd) VALUES
         (_name, _adress, _phone, _workStart, _workEnd);
 $$;
-
 CREATE PROCEDURE campusChange(_id integer, _name varchar(50), _adress varchar(50), _phone varchar(50), _workStart time, _workEnd time)
 LANGUAGE SQL
 AS $$
@@ -312,7 +311,6 @@ AS $$
     workEnd = _workEnd
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE campusDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -327,7 +325,6 @@ AS $$
     INSERT INTO public.classroom (name, campus_id) VALUES
         (_name, _campus_id);
 $$;
-
 CREATE PROCEDURE classroomChange(_id integer, _name varchar(50), _campus_id integer)
 LANGUAGE SQL
 AS $$
@@ -336,7 +333,6 @@ AS $$
     campus_id = _campus_id
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE classroomDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -351,7 +347,6 @@ AS $$
     INSERT INTO public.subject (name) VALUES
         (_name);
 $$;
-
 CREATE PROCEDURE subjectChange(_id integer, _name varchar(50))
 LANGUAGE SQL
 AS $$
@@ -359,7 +354,6 @@ AS $$
     SET name = _name
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE subjectDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -374,7 +368,6 @@ AS $$
     INSERT INTO public.classTime (startTime, endTime) VALUES
         (_startTime, _endTime);
 $$;
-
 CREATE PROCEDURE classtimeChange(_id integer, _startTime time, _endTime time)
 LANGUAGE SQL
 AS $$
@@ -383,7 +376,6 @@ AS $$
         endTime = _endTime
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE classtimeDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -398,7 +390,6 @@ AS $$
     INSERT INTO public.faculty (name, phone, email, chief_id, campus_id) VALUES
         (_name, _phone, _email, _chief_id, _campus_id);
 $$;
-
 CREATE PROCEDURE facultyChange(_id integer, _name varchar(50), _phone varchar(20), _email varchar(50), _chief_id integer, _campus_id integer)
 LANGUAGE SQL
 AS $$
@@ -410,7 +401,6 @@ AS $$
         campus_id = _campus_id
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE facultyDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -425,7 +415,6 @@ AS $$
     INSERT INTO public.cathedra (name, phone, email, faculty_id, chief_id, campus_id) VALUES
         (_name, _phone, _email, _faculty_id, _chief_id, _campus_id);
 $$;
-
 CREATE PROCEDURE cathedraChange(_id integer, _name varchar(50), _phone varchar(20), _email varchar(50), _faculty_id integer, _chief_id integer, _campus_id integer)
 LANGUAGE SQL
 AS $$
@@ -438,7 +427,6 @@ AS $$
         campus_id = _campus_id
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE cathedraDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -453,7 +441,6 @@ AS $$
     INSERT INTO public.teacherProfile (rank, grade, position, education) VALUES
         (_rank, _grade, _position, _education);
 $$;
-
 CREATE PROCEDURE teacherprofileChange(_id integer, _rank varchar(50), _grade varchar(50), _position varchar(50), _education varchar(50))
 LANGUAGE SQL
 AS $$
@@ -464,7 +451,6 @@ AS $$
         education = _education
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE teacherprofileDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -479,7 +465,6 @@ AS $$
     INSERT INTO public.teacher (name, age, phone, email, cathedra_id, teacherProfile_id) VALUES
         (_name, _age, _phone, _email, _cathedra_id, _teacherProfile_id);
 $$;
-
 CREATE PROCEDURE teacherChange(_id integer, _name varchar(50), _age integer, _phone varchar(20), _email varchar(50), _cathedra_id integer, _teacherProfile_id integer)
 LANGUAGE SQL
 AS $$
@@ -492,7 +477,6 @@ AS $$
         teacherProfile_id = _teacherProfile_id
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE teacherDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -507,7 +491,6 @@ AS $$
     INSERT INTO public.specialty (name, cipher) VALUES
         (_name, _cipher);
 $$;
-
 CREATE PROCEDURE specialtyChange(_id integer, _name varchar(50), _cipher varchar(10))
 LANGUAGE SQL
 AS $$
@@ -516,7 +499,6 @@ AS $$
         cipher = _cipher
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE specialtyDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -531,7 +513,6 @@ AS $$
     INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
         (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
 $$;
-
 CREATE PROCEDURE groupChange(_id integer, _cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
 LANGUAGE SQL
 AS $$
@@ -543,7 +524,6 @@ AS $$
         specialty_id = _specialty_id
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE groupDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -552,14 +532,15 @@ AS $$
 $$;
 
 -- procedure for table schedule : insert, update, delete
-CREATE PROCEDURE scheduleAdd(_subject_id integer, _group_id integer, _teacher_id integer, _classType varchar(20), _classroom_id integer, _classTime_id integer, _weekDay varchar(20))
+CREATE PROCEDURE scheduleAdd(_subject_id integer, _group_id integer, _teacher_id integer, _classType varchar(20), _classroom_id integer,
+                            _classTime_id integer, _weekDay varchar(20))
 LANGUAGE SQL
 AS $$
     INSERT INTO public.schedule (subject_id, group_id, teacher_id, classType, classroom_id, classTime_id, weekDay) VALUES
         (_subject_id, _group_id, _teacher_id, _classType, _classroom_id, _classTime_id, _weekDay);
 $$;
-
-CREATE PROCEDURE scheduleChange(_id integer, _subject_id integer, _group_id integer, _teacher_id integer, _classType varchar(20), _classroom_id integer, _classTime_id integer, _weekDay varchar(20))
+CREATE PROCEDURE scheduleChange(_id integer, _subject_id integer, _group_id integer, _teacher_id integer, _classType varchar(20),
+                                _classroom_id integer, _classTime_id integer, _weekDay varchar(20))
 LANGUAGE SQL
 AS $$
     UPDATE public.schedule
@@ -572,7 +553,6 @@ AS $$
         weekDay = _weekDay
     WHERE id = _id;
 $$;
-
 CREATE PROCEDURE scheduleDelete(_id integer)
 LANGUAGE SQL
 AS $$
@@ -623,22 +603,30 @@ $$;
 
 -- task 2c
 -- select all teachers which work chief of cathedra and faculty
-CREATE FUNCTION getChiefOfCheifs() RETURNS TABLE (Name varchar(50), Age integer, Phone varchar(50), Email varchar(50))
+CREATE FUNCTION getChiefOfCheifs() RETURNS TABLE (Name varchar(50), Age integer,
+                                Phone varchar(50), Email varchar(50), Cathedra varchar(50), Faculty varchar(50))
 LANGUAGE plpgsql
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT subquery.name, subquery.age, subquery.phone, subquery.email
-    FROM public.cathedra AS cathedra,
-    LATERAL  (SELECT teacher.id, teacher.name, teacher.age, teacher.phone, teacher.email
-              FROM public.teacher AS teacher
-              WHERE teacher.id = cathedra.chief_id
-    ) AS subquery
-    WHERE subquery.id IN (SELECT faculty.chief_id
-                          FROM public.faculty AS faculty
-                          LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
-                          WHERE public.teacher.name = subquery.name
-    );
+    SELECT
+        teacher.name, teacher.age, teacher.phone, teacher.email,
+        (SELECT public.cathedra.name FROM public.cathedra WHERE public.cathedra.chief_id = teacher.id),
+        (SELECT public.faculty.name FROM public.faculty WHERE public.faculty.id = 2)
+    FROM
+        (SELECT * FROM public.teacher) AS teacher
+        LEFT JOIN LATERAL (SELECT * FROM public.cathedra) AS cathedra
+        ON teacher.id = cathedra.chief_id
+    WHERE
+        teacher.id IN (SELECT faculty.chief_id
+                       FROM public.faculty AS faculty
+                       LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
+                       WHERE public.teacher.name = teacher.name)
+        AND
+        teacher.age IN (SELECT public.teacher.age
+                        FROM public.teacher
+                        GROUP BY public.teacher.age
+                        HAVING public.teacher.age < 65);
 END;
 $$;
 
@@ -733,23 +721,21 @@ DECLARE
     flag    integer;
 BEGIN
     flag = 0;
+    START TRANSACTION
     OPEN cur FOR SELECT * FROM public.group;
-    LOOP
-        FETCH cur INTO row;
+    LOOP FETCH cur INTO row;
         IF row.cipher = _cipher THEN
             flag = 1;
         END IF;
         EXIT WHEN NOT FOUND;
     END LOOP;
     CLOSE cur;
-    START TRANSACTION
-        IF flag = 0 THEN
-        INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
-            (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
-        IF flag = 1 THEN
-            ROLLBACK;
-       END IF;
-    COMMIT;
+    INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
+        (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
+    IF flag = 1 THEN
+        ROLLBACK;
+    END IF;
+    COMMIT TRANSACTION;
 END;
 $$;
 

@@ -133,7 +133,7 @@ class TaskWindow(QMainWindow):
 
     def task2cButtonPressed(self):
         self.cursor.execute('SELECT * FROM getChiefOfCheifs();')
-        self.data.append(["Name", "Age", "Phone", "Email"])
+        self.data.append(["Name", "Age", "Phone", "Email", "Cathedra", "Faculty"])
         for i in self.cursor.fetchall():
             self.data.append(i)
         self.table = QTableView()
