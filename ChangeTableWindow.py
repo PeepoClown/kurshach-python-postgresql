@@ -58,7 +58,7 @@ class ChangeTableWindow(QMainWindow):
                 self.labels.append(QLabel("%s: " % self.columns[i], self))
                 labelW = 200 + widthCoeff * 400
                 self.labels[i].setGeometry(labelW, 120 + heightCoeff * 100, 100, 30)
-                if str(self.columns[i]).find("id") == -1:
+                if str(self.columns[i]).find("_id") == -1:
                     self.lineEdits.append(QLineEdit(self))
                     self.lineEdits[lineEditsCounter].setGeometry(labelW + 120, 120 + heightCoeff * 100, 200, 30)
                     lineEditsCounter += 1
