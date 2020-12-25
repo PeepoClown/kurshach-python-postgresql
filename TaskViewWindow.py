@@ -31,7 +31,7 @@ class TaskViewWindow(QMainWindow):
 			self.taskButtons[i].clicked.connect(partial(self.taskButtonPressed, self.btnNames[i]))
 			self.taskButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 			heightCoeff += 1
-			if (i + 1) % 4 == 0: # mod 5
+			if (i + 1) % 4 == 0:
 				widthCoeff += 1
 				heightCoeff = 0
 

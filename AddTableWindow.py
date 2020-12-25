@@ -12,7 +12,9 @@ class AddTableWindow(QMainWindow):
         self.setMinimumSize(QSize(1200, 500))
         self.tableName = tableName
         self.connectionStr = connectionStr
+
         self.columns = []
+        self.types = []
         self.labels = []
         self.lineEdits = []
         self.comboBoxes = []
@@ -22,11 +24,12 @@ class AddTableWindow(QMainWindow):
             connection = psycopg2.connect(self.connectionStr)
             cursor = connection.cursor()
 
-            cursor.execute('SELECT column_name FROM information_schema.columns WHERE \
+            cursor.execute('SELECT column_name, data_type FROM information_schema.columns WHERE \
                                        table_name = \'%s\';' % self.tableName)
             for i in cursor.fetchall():
                 if str(i[0]) != "id":
                     self.columns.append(i[0])
+                    self.types.append(i[1])
 
             heightCoeff = 0
             widthCoeff = 0
@@ -96,10 +99,13 @@ class AddTableWindow(QMainWindow):
 
                 procedureName = str(self.tableName).lower() + "Add"
                 argsStr = "("
-                for i in self.lineEdits:
-                    argsStr += '\'' + i.text() + '\'' + ", "
+                for i in range(0, len(self.lineEdits)):
+                    if self.types[i] == 'integer':
+                        argsStr += self.lineEdits[i].text() + ", "
+                    else:
+                        argsStr += '\'' + self.lineEdits[i].text() + '\'' + ", "
                 for i in self.comboBoxes:
-                    argsStr += '\'' + self.getFK(i.currentText()) + '\'' + ", "
+                    argsStr += self.getFK(i.currentText()) + ", "
                 argsStr = argsStr[:-2]
                 argsStr += ")"
 
@@ -120,14 +126,13 @@ class AddTableWindow(QMainWindow):
             cursor = connection.cursor()
 
             procedureName = "scheduleAdd"
-            argsStr = "(" + '\'' + self.getFK(self.comboBoxes[0].currentText()) + '\'' + ", " + \
-                    '\'' + self.getFK(self.comboBoxes[1].currentText()) + '\'' + ", " + \
-                    '\'' + self.getFK(self.comboBoxes[2].currentText()) + '\'' + ", " + \
+            argsStr = "(" + self.getFK(self.comboBoxes[0].currentText()) + ", " + \
+                    self.getFK(self.comboBoxes[1].currentText()) + ", " + \
+                    self.getFK(self.comboBoxes[2].currentText()) + ", " + \
                     '\'' + self.lineEdits[0].text() + '\'' + ", " + \
-                    '\'' + self.getFK(self.comboBoxes[3].currentText()) + '\'' + ", " + \
-                    '\'' + self.getFK(self.comboBoxes[4].currentText()) + '\'' + ", " + \
+                    self.getFK(self.comboBoxes[3].currentText()) + ", " + \
+                    self.getFK(self.comboBoxes[4].currentText()) + ", " + \
                     '\'' + self.lineEdits[1].text() + '\'' + ")"
-            print(argsStr)
 
             cursor.execute('CALL %s%s;' % (procedureName, argsStr))
             connection.commit()

@@ -32,6 +32,7 @@ class ChangeTableWindow(QMainWindow):
             msgBox.exec()
 
         self.columns = []
+        self.types = []
         self.labels = []
         self.lineEdits = []
         self.comboBoxes = []
@@ -41,11 +42,12 @@ class ChangeTableWindow(QMainWindow):
             connection = psycopg2.connect(self.connectionStr)
             cursor = connection.cursor()
 
-            cursor.execute('SELECT column_name FROM information_schema.columns WHERE \
-                           table_name = \'%s\';' % self.tableName)
+            cursor.execute('SELECT column_name, data_type FROM information_schema.columns WHERE \
+                                                   table_name = \'%s\';' % self.tableName)
             for i in cursor.fetchall():
                 if str(i[0]) != "id":
                     self.columns.append(i[0])
+                    self.types.append(i[1])
 
             heightCoeff = 0
             widthCoeff = 0
@@ -115,17 +117,20 @@ class ChangeTableWindow(QMainWindow):
 
                 procedureName = str(self.tableName).lower() + "Change"
                 argsStr = "(" + self.getFK(self.checkRecordBox.currentText()) + ", "
-                for i in self.lineEdits:
-                    argsStr += '\'' + i.text() + '\'' + ", "
+                for i in range(0, len(self.lineEdits)):
+                    if self.types[i] == 'integer':
+                        argsStr += self.lineEdits[i].text() + ", "
+                    else:
+                        argsStr += '\'' + self.lineEdits[i].text() + '\'' + ", "
                 for i in self.comboBoxes:
-                    argsStr += '\'' + self.getFK(i.currentText()) + '\'' + ", "
+                    argsStr += self.getFK(i.currentText()) + ", "
                 argsStr = argsStr[:-2]
                 argsStr += ")"
 
                 cursor.execute('CALL %s%s;' % (procedureName, argsStr))
                 connection.commit()
 
-                msgBox = QMessageBox(QMessageBox.Information, "Add", "Insert record: " + argsStr,
+                msgBox = QMessageBox(QMessageBox.Information, "Change", "Update record: " + argsStr,
                                      QMessageBox.Ok | QMessageBox.Cancel, self)
                 self.close()
             except Exception as exception:
@@ -140,18 +145,18 @@ class ChangeTableWindow(QMainWindow):
 
             procedureName = "scheduleChange"
             argsStr = "(" + self.getFK(self.checkRecordBox.currentText()) + ", " + \
-                      '\'' + self.getFK(self.comboBoxes[0].currentText()) + '\'' + ", " + \
-                      '\'' + self.getFK(self.comboBoxes[1].currentText()) + '\'' + ", " + \
-                      '\'' + self.getFK(self.comboBoxes[2].currentText()) + '\'' + ", " + \
+                      self.getFK(self.comboBoxes[0].currentText()) + ", " + \
+                      self.getFK(self.comboBoxes[1].currentText()) + ", " + \
+                      self.getFK(self.comboBoxes[2].currentText()) + ", " + \
                       '\'' + self.lineEdits[0].text() + '\'' + ", " + \
-                      '\'' + self.getFK(self.comboBoxes[3].currentText()) + '\'' + ", " + \
-                      '\'' + self.getFK(self.comboBoxes[4].currentText()) + '\'' + ", " + \
+                      self.getFK(self.comboBoxes[3].currentText()) + ", " + \
+                      self.getFK(self.comboBoxes[4].currentText()) + ", " + \
                       '\'' + self.lineEdits[1].text() + '\'' + ")"
 
             cursor.execute('CALL %s%s;' % (procedureName, argsStr))
             connection.commit()
 
-            msgBox = QMessageBox(QMessageBox.Information, "Add", "Insert record: " + argsStr,
+            msgBox = QMessageBox(QMessageBox.Information, "Change", "Update record: " + argsStr,
                                  QMessageBox.Ok | QMessageBox.Cancel, self)
             self.close()
         except Exception as exception:

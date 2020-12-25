@@ -1,12 +1,4 @@
-CREATE DATABASE scheduler; -- create db
-
-CREATE ROLE admin WITH LOGIN SUPERUSER CREATEDB CREATEROLE PASSWORD '12345';
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin;
-CREATE USER dmitriy WITH PASSWORD '12345' IN ROLE admin;
-ALTER DATABASE scheduler OWNER TO dmitriy;
-
-CREATE ROLE usr WITH LOGIN PASSWORD 'qwerty';
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO usr;
+CREATE DATABASE scheduler;
 
 -- campus table
 CREATE TABLE public.campus
@@ -26,8 +18,6 @@ INSERT INTO public.campus (name, adress, phone, workStart, workEnd) VALUES
 	('Кампус на проспекте Вернадского 86', 'проспект Вернадского, 86', '+7 (920) 845-12-24', '09:00', '23:00'),
 	('Кампус на улице Соколиная гора', '5-я ул. Соколиной горы, дом 22', '+7 (912) 345-90-80', '09:00', '22:30'),
 	('Кампус на улице Малая Пироговская', 'улица Малая Пироговская, д. 1, стр. 5', '+7 (955) 555-92-33', '09:00', '21:00');
--- create index by id field of campus table
-CREATE INDEX campus_idIndex ON public.campus (id);
 
 -- classroom table
 CREATE TABLE public.classroom
@@ -46,9 +36,6 @@ INSERT INTO public.classroom (name, campus_id) VALUES
 	('128', 2), ('216', 2), ('249', 2), ('309', 2), ('330', 2),
 	('426', 2), ('451', 2), ('К-1', 3), ('К-2', 3), ('У-112', 3),
 	('У-200', 3), ('Т-31', 4), ('Т-23', 4), ('22', 5), ('18', 5);
--- create index by, id field, and FK to campus table, of classroom table
-CREATE INDEX classroom_idIndex ON public.classroom (id);
-CREATE INDEX classroom_FKIdCampusIndex ON public.classroom (campus_id);
 
 -- subject table
 CREATE TABLE public.subject
@@ -62,8 +49,6 @@ INSERT INTO public.subject (name) VALUES
 	('Математический анализ'), ('Линейная алгебра'), ('Аналитическая геометрия'),
 	('Языки программирования'), ('Компьютерные сети'), ('Базы данных'),
 	('Философия'), ('История'), ('Операционные системы');
--- create index by id field of subject table
-CREATE INDEX subject_idIndex ON public.subject (id);
 
 -- classTime table
 CREATE TABLE public.classTime
@@ -77,8 +62,6 @@ CREATE TABLE public.classTime
 INSERT INTO public.classTime (startTime, endTime) VALUES
 	('09:00', '10:30'), ('10:40', '12:10'), ('12:40', '14:10'),
 	('14:20', '15:50'), ('16:20', '17:50'), ('18:00', '19:30');
--- create index by id field of classTime table
-CREATE INDEX classTime_idIndex ON public.classTime (id);
 
 -- faculty table
 CREATE TABLE public.faculty
@@ -93,10 +76,6 @@ CREATE TABLE public.faculty
 	CONSTRAINT FK_campusToFaculty FOREIGN KEY (campus_id) REFERENCES public.campus (id)
 );
 -- insert data to faculty table - later
--- create index by, id field, and FK to campus table, of faculty table
-CREATE INDEX faculty_idIndex ON public.faculty (id);
-CREATE INDEX faculty_FKIdCampusIndex ON public.faculty (campus_id);
-CREATE INDEX faculty_FKIdTeacherIndex ON public.faculty (chief_id);
 
 -- cathedra table
 CREATE TABLE public.cathedra
@@ -113,11 +92,6 @@ CREATE TABLE public.cathedra
 	CONSTRAINT FK_campusToCathedra FOREIGN KEY (campus_id) REFERENCES public.campus (id)
 );
 -- insert data to cathedra table - later
--- create index by, id field, FK to campus table and FK to faculty table and teacher table, of cathedra table
-CREATE INDEX cathedra_idIndex ON public.cathedra (id);
-CREATE INDEX cathedra_FKIdFacultyIndex ON public.cathedra (faculty_id);
-CREATE INDEX cathedra_FKIdCampusIndex ON public.cathedra (campus_id);
-CREATE INDEX cathedra_FKIdTeacherIndex ON public.cathedra (chief_id);
 
 -- teacherProfile table
 CREATE TABLE public.teacherProfile
@@ -139,8 +113,6 @@ INSERT INTO public.teacherProfile (rank, grade, position, education) VALUES
 	('Доктор наук', 'Профессор', 'Преподаватель', 'Высшее физ-мат'),
 	(NULL, NULL, 'Преподаватель', 'Высшее физ-мат'),
 	('Кандидат наук', 'Доцент', 'Зав. кафедрой', 'Высшее физ-мат');
--- create index by id field of teacherProfile table
-CREATE INDEX teacherProfile_idIndex ON public.teacherProfile (id);
 
 -- teacher table
 CREATE TABLE public.teacher
@@ -167,10 +139,6 @@ INSERT INTO public.teacher (name, age, phone, email, cathedra_id, teacherProfile
 	('Леонова Алиса Николаевна', 45, '+7 (914) 123-34-45', 'leonova@univer.ru', 4, 4),
 	('Аксенов Платон Тимофеевич', 31, '+7 (914) 567-78-89', 'aksenov@univer.ru', 4, 3),
 	('Борисов Александр Владимирович', 36, '+7 (915) 123-34-45', 'borisov@univer.ru', 5, 5);
--- create index by id field of teacherProfile table
-CREATE INDEX teacher_idIndex ON public.teacher (id);
-CREATE INDEX teacher_FKIdCathedraIndex ON public.teacher (cathedra_id);
-CREATE INDEX teacher_FKIdTeacherProfileIndex ON public.teacher (teacherProfile_id);
 
 -- set field of table faculty - chief_id as FK
 ALTER TABLE public.faculty ADD CONSTRAINT FK_teacherToFaculty FOREIGN KEY (chief_id) REFERENCES public.teacher (id);
@@ -206,8 +174,6 @@ INSERT INTO public.specialty (name, cipher) VALUES
 	('Прикладная физика', '2'), ('Астрономия', '3'),
 	('Прикладная информатика', '4'), ('Программная инженерия', '6'),
 	('Филология', '7'), ('Информационная безопасность', '8');
--- create index by id field of specialty table
-CREATE INDEX specialty_idIndex ON public.specialty (id);
 
 -- group table
 CREATE TABLE public.group
@@ -230,10 +196,6 @@ INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_
 	('ИТТО-01', 1, 30, 3, 6), ('ИТТО-01', 3, 25, 3, 6),
 	('ФИЛО-01', 2, 33, 4, 7), ('ИНФБ-01', 4, 23, 5, 8),
 	('МАТАН-01', 2, 29, 1, 1), ('КЕК-00', 5, 19, 3, 5);
--- create index by id field of group table
-CREATE INDEX group_idIndex ON public.group (id);
-CREATE INDEX group_FKIdCathedraIndex ON public.group (cathedra_id);
-CREATE INDEX group_FKIdSpecialtyIndex ON public.group (specialty_id);
 
 -- table schedule
 CREATE TABLE public.schedule
@@ -285,14 +247,165 @@ INSERT INTO public.schedule (subject_id, group_id, teacher_id, classType, classr
     (8, 8, 8, 'Лекция', 8, 3, 'Суббота'), (1, 12, 1, 'Практика', 21, 4, 'Суббота'), (2, 5, 1, 'Лекция', 18, 4, 'Суббота'),
     (9, 1, 4, 'Лекция', 30, 4, 'Суббота'), (9, 7, 5, 'Практика', 22, 4, 'Суббота'), (9, 5, 6, 'Лекция', 15, 5, 'Суббота'),
     (9, 2, 4, 'Лекция', 27, 5, 'Суббота'), (9, 8, 5, 'Лекция', 7, 6, 'Суббота'), (9, 6, 4, 'Практика', 10, 6, 'Суббота');
--- create index by id field of schedule table
-CREATE INDEX schedule_idIndex ON public.schedule (id);
-CREATE INDEX schedule_FKIdSubjectIndex ON public.schedule (subject_id);
-CREATE INDEX schedule_FKIdGroupIndex ON public.schedule (group_id);
-CREATE INDEX schedule_FKIdTeacherIndex ON public.schedule (teacher_id);
-CREATE INDEX schedule_FKIdClassroomIndex ON public.schedule (classroom_id);
-CREATE INDEX schedule_FKIdClassTimeIndex ON public.schedule (classTime_id);
 
+-- task 2a
+-- function for multytable query with param and case operator
+CREATE FUNCTION selectGroupsByCourse(_course integer) RETURNS TABLE (GroupCipher varchar(50), Cathedra varchar(50), Capacity text)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.group.cipher, public.cathedra.name,
+    CASE
+        WHEN public.group.studentsCount < 20 THEN 'Недобор'
+        WHEN public.group.studentsCount <= 32 THEN 'Норма'
+        WHEN public.group.studentsCount > 32 THEN 'Перебор'
+    END
+    FROM public.group
+    LEFT JOIN public.cathedra ON public.cathedra.id = public.group.cathedra_id
+    WHERE public.group.course = _course;
+END;
+$$;
+
+-- task 2b
+-- create multytable view
+CREATE VIEW chiefByGroup AS
+SELECT public.group.cipher, public.teacher.name
+FROM public.group, public.teacher
+LEFT JOIN public.cathedra ON public.cathedra.chief_id = public.teacher.id
+WHERE public.group.cathedra_id = public.cathedra.id;
+-- function for select view fields in some order
+CREATE FUNCTION getChiefByGroup(_field varchar(50)) RETURNS TABLE (GroupCipher varchar(50), ChiefName varchar(50))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT * FROM chiefByGroup
+    ORDER BY CASE
+        WHEN _field = 'g' THEN chiefByGroup.cipher
+        WHEN _field = 'c' THEN chiefByGroup.name
+        ELSE chiefByGroup.cipher
+    END;
+END;
+$$;
+
+-- task 2c
+-- select all teachers which work chief of cathedra and faculty
+CREATE FUNCTION getChiefOfCheifs() RETURNS TABLE (Name varchar(50), Age integer,
+                                Phone varchar(50), Email varchar(50), Cathedra varchar(50), Faculty varchar(50))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        teacher.name, teacher.age, teacher.phone, teacher.email,
+        (SELECT public.cathedra.name FROM public.cathedra WHERE public.cathedra.chief_id = teacher.id),
+        (SELECT public.faculty.name FROM public.faculty WHERE public.faculty.id = 2)
+    FROM
+        (SELECT * FROM public.teacher) AS teacher
+        LEFT JOIN LATERAL (SELECT * FROM public.cathedra WHERE teacher.id = cathedra.chief_id) AS cathedra
+        ON teacher.id = cathedra.chief_id
+    WHERE
+        teacher.id IN (SELECT faculty.chief_id
+                       FROM public.faculty AS faculty
+                       LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
+                       WHERE public.teacher.name = teacher.name)
+        AND
+        teacher.age IN (SELECT public.teacher.age
+                        FROM public.teacher
+                        GROUP BY public.teacher.age
+                        HAVING public.teacher.age < 65);
+END;
+$$;
+
+-- task 2d
+-- function for multytable query with grouping and count func call and having operator
+CREATE FUNCTION getClassesByTeacher(_pairs integer) RETURNS TABLE (TeacherName varchar(50), WeekDay varchar(50), Pairs bigint)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.teacher.name, public.schedule.weekDay, COUNT(public.schedule.id)
+    FROM public.teacher
+    LEFT JOIN public.schedule ON public.teacher.id = public.schedule.teacher_id
+    GROUP BY public.teacher.name, public.schedule.weekDay
+    HAVING COUNT(public.schedule.id) = _pairs
+    ORDER BY public.teacher.name;
+END;
+$$;
+
+-- task 2e
+-- function for query that contains any predicate
+CREATE FUNCTION selectGroupsByWeekDay(_weekDay varchar(50)) RETURNS TABLE (GroupCipher varchar(50))
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT public.group.cipher
+    FROM public.group
+    WHERE public.group.id = ANY(SELECT public.schedule.group_id FROM public.schedule WHERE public.schedule.weekDay = _weekDay);
+END;
+$$;
+
+-- task 3
+CREATE INDEX campus_idIndex ON public.campus (name);
+CREATE INDEX classroom_idIndex ON public.classroom (name);
+CREATE INDEX faculty_idIndex ON public.faculty (phone);
+CREATE INDEX cathedra_idIndex ON public.cathedra (phone);
+CREATE INDEX teacher_idIndex ON public.teacher (name);
+CREATE INDEX group_idIndex ON public.group (cipher);
+CREATE INDEX schedule_idIndex ON public.schedule (weekDay);
+
+-- task 4
+-- create table teacherprofileLogs for trigger test
+CREATE TABLE public.teacherprofileLogs
+(
+    id				serial		    NOT NULL,
+	msg	    		varchar(255)	NOT NULL,
+	logTime         time            NOT NULL,
+	CONSTRAINT PK_teacherprofileLogs PRIMARY KEY (id)
+);
+-- create trigger function, that called on insert, update and delete records of teacherProfile table
+CREATE FUNCTION tr_createLog() RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+    DECLARE
+        valueStr    varchar(100);
+        msgStr      varchar(100);
+        delim       varchar(5);
+        resultStr   varchar(255);
+    BEGIN
+        delim = ' ';
+        IF TG_OP = 'INSERT' THEN
+            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
+            msgStr = 'Add new profile: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        ELSIF TG_OP = 'UPDATE' THEN
+            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
+            msgStr = 'Update profile: ' || OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education || ' to: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        ELSIF TG_OP = 'DELETE' THEN
+            valueStr = OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education;
+            msgStr = 'Delete profile: ';
+            resultStr = msgStr || valueStr;
+            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
+                (resultStr, NOW());
+            RETURN NEW;
+        END IF;
+    END;
+$$;
+-- create trigger for table teaherProfile that called tr_createLog function
+CREATE TRIGGER tr_teacherprofile
+AFTER INSERT OR UPDATE OR DELETE ON public.teacherProfile
+FOR EACH ROW EXECUTE PROCEDURE tr_createLog();
+
+-- task 5
 -- procedure for table campus : insert, update, delete
 CREATE PROCEDURE campusAdd(_name varchar(50), _adress varchar(50), _phone varchar(50), _workStart time, _workEnd time)
 LANGUAGE SQL
@@ -560,158 +673,8 @@ AS $$
     WHERE id = _id;
 $$;
 
--- task 2a
--- function for multytable query with param and case operator
-CREATE FUNCTION selectGroupsByCourse(_course integer) RETURNS TABLE (GroupCipher varchar(50), Cathedra varchar(50), Capacity text)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT public.group.cipher, public.cathedra.name,
-    CASE
-        WHEN public.group.studentsCount < 20 THEN 'Недобор'
-        WHEN public.group.studentsCount <= 32 THEN 'Норма'
-        WHEN public.group.studentsCount > 32 THEN 'Перебор'
-    END
-    FROM public.group
-    LEFT JOIN public.cathedra ON public.cathedra.id = public.group.cathedra_id
-    WHERE public.group.course = _course;
-END;
-$$;
-
--- task 2b
--- create multytable view
-CREATE VIEW chiefByGroup AS
-SELECT public.group.cipher, public.teacher.name
-FROM public.group, public.teacher
-LEFT JOIN public.cathedra ON public.cathedra.chief_id = public.teacher.id
-WHERE public.group.cathedra_id = public.cathedra.id;
--- function for select view fields in some order
-CREATE FUNCTION getChiefByGroup(_field varchar(50)) RETURNS TABLE (GroupCipher varchar(50), ChiefName varchar(50))
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT * FROM chiefByGroup
-    ORDER BY CASE
-        WHEN _field = 'g' THEN chiefByGroup.cipher
-        WHEN _field = 'c' THEN chiefByGroup.name
-        ELSE chiefByGroup.cipher
-    END;
-END;
-$$;
-
--- task 2c
--- select all teachers which work chief of cathedra and faculty
-CREATE FUNCTION getChiefOfCheifs() RETURNS TABLE (Name varchar(50), Age integer,
-                                Phone varchar(50), Email varchar(50), Cathedra varchar(50), Faculty varchar(50))
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT
-        teacher.name, teacher.age, teacher.phone, teacher.email,
-        (SELECT public.cathedra.name FROM public.cathedra WHERE public.cathedra.chief_id = teacher.id),
-        (SELECT public.faculty.name FROM public.faculty WHERE public.faculty.id = 2)
-    FROM
-        (SELECT * FROM public.teacher) AS teacher
-        INNER JOIN LATERAL (SELECT * FROM public.cathedra WHERE teacher.id = cathedra.chief_id) AS cathedra
-        ON teacher.id = cathedra.chief_id
-    WHERE
-        teacher.id IN (SELECT faculty.chief_id
-                       FROM public.faculty AS faculty
-                       LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
-                       WHERE public.teacher.name = teacher.name)
-        AND
-        teacher.age IN (SELECT public.teacher.age
-                        FROM public.teacher
-                        GROUP BY public.teacher.age
-                        HAVING public.teacher.age < 65);
-END;
-$$;
-
--- task 2d
--- function for multytable query with grouping and count func call and having operator
-CREATE FUNCTION getClassesByTeacher(_pairs integer) RETURNS TABLE (TeacherName varchar(50), WeekDay varchar(50), Pairs bigint)
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT public.teacher.name, public.schedule.weekDay, COUNT(public.schedule.id)
-    FROM public.teacher
-    LEFT JOIN public.schedule ON public.teacher.id = public.schedule.teacher_id
-    GROUP BY public.teacher.name, public.schedule.weekDay
-    HAVING COUNT(public.schedule.id) = _pairs
-    ORDER BY public.teacher.name;
-END;
-$$;
-
--- task 2e
--- function for query that contains any predicate
-CREATE FUNCTION selectGroupsByWeekDay(_weekDay varchar(50)) RETURNS TABLE (GroupCipher varchar(50))
-LANGUAGE plpgsql
-AS $$
-BEGIN
-    RETURN QUERY
-    SELECT public.group.cipher
-    FROM public.group
-    WHERE public.group.id = ANY(SELECT public.schedule.group_id FROM public.schedule WHERE public.schedule.weekDay = _weekDay);
-END;
-$$;
-
--- create table teacherprofileLogs for trigger test
-CREATE TABLE public.teacherprofileLogs
-(
-    id				serial		    NOT NULL,
-	msg	    		varchar(255)	NOT NULL,
-	logTime         time            NOT NULL,
-	CONSTRAINT PK_teacherprofileLogs PRIMARY KEY (id)
-);
-
--- task 4
--- create trigger function, that called on insert, update and delete records of teacherProfile table
-CREATE FUNCTION tr_createLog() RETURNS TRIGGER
-LANGUAGE plpgsql
-AS $$
-    DECLARE
-        valueStr    varchar(100);
-        msgStr      varchar(100);
-        delim       varchar(5);
-        resultStr   varchar(255);
-    BEGIN
-        delim = ' ';
-        IF TG_OP = 'INSERT' THEN
-            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
-            msgStr = 'Add new profile: ';
-            resultStr = msgStr || valueStr;
-            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
-                (resultStr, NOW());
-            RETURN NEW;
-        ELSIF TG_OP = 'UPDATE' THEN
-            valueStr = NEW.rank || delim || NEW.grade || delim || NEW.position || delim || NEW.education;
-            msgStr = 'Update profile: ' || OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education || ' to: ';
-            resultStr = msgStr || valueStr;
-            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
-                (resultStr, NOW());
-            RETURN NEW;
-        ELSIF TG_OP = 'DELETE' THEN
-            valueStr = OLD.rank || delim || OLD.grade || delim || OLD.position || delim || OLD.education;
-            msgStr = 'Delete profile: ';
-            resultStr = msgStr || valueStr;
-            INSERT INTO public.teacherprofileLogs(msg, logTime) VALUES
-                (resultStr, NOW());
-            RETURN NEW;
-        END IF;
-    END;
-$$;
--- create trigger for table teaherProfile that called tr_createLog function
-CREATE TRIGGER tr_teacherprofile
-AFTER INSERT OR UPDATE OR DELETE ON public.teacherProfile
-FOR EACH ROW EXECUTE PROCEDURE tr_createLog();
-
--- task 6, task 7
--- create procedure with rollback on invalid transaction(passing cipher that already exist)
--- in procedure cursor was created
+-- task 6, 7
+-- create procedure with rollback on invalid transaction(passing cipher that already exist), in procedure cursor was created
 CREATE PROCEDURE rollbackIfInvalidAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
 LANGUAGE plpgsql
 AS $$
@@ -770,3 +733,12 @@ RETURN QUERY
               public.schedule.classTime_id = _pair);
 END;
 $$;
+
+-- task 9 admin, dmitriy - superusers, usr - sample user
+CREATE ROLE admin WITH LOGIN SUPERUSER CREATEDB CREATEROLE PASSWORD '12345';
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin;
+CREATE USER dmitriy WITH PASSWORD '12345' IN ROLE admin;
+ALTER DATABASE scheduler OWNER TO dmitriy;
+
+CREATE ROLE usr WITH LOGIN PASSWORD 'qwerty';
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO usr;

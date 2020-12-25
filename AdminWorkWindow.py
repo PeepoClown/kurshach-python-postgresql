@@ -38,8 +38,8 @@ class AdminWorkWindow(QMainWindow):
             msgBox.exec()
 
         self.addTableButtons = []
-        self.deleteTableButtons = []
         self.changeTableButtons = []
+        self.deleteTableButtons = []
         self.viewTableButtons = []
         for i in range(0, len(self.tableNames)):
             currLabel = QLabel("Table: " + self.tableNames[i], self)
@@ -60,20 +60,8 @@ class AdminWorkWindow(QMainWindow):
             self.addTableButtons[i].clicked.connect(partial(self.addTableButtonPressed, self.tableNames[i]))
             self.addTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
-            self.deleteTableButtons.append(QPushButton("Delete", self))
-            self.deleteTableButtons[i].setGeometry(720, 50 + i * 70, 150, 30)
-            self.deleteTableButtons[i].setStyleSheet('''
-                font-size: 18px;
-                color: #ede8df;
-                background-color: #749cdb;
-                border-radius: 10px;
-                padding: 3px 8px;
-            ''')
-            self.deleteTableButtons[i].clicked.connect(partial(self.deleteTableButtonPressed, self.tableNames[i]))
-            self.deleteTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
-
             self.changeTableButtons.append(QPushButton("Change", self))
-            self.changeTableButtons[i].setGeometry(920, 50 + i * 70, 150, 30)
+            self.changeTableButtons[i].setGeometry(720, 50 + i * 70, 150, 30)
             self.changeTableButtons[i].setStyleSheet('''
                 font-size: 18px;
                 color: #ede8df;
@@ -83,6 +71,18 @@ class AdminWorkWindow(QMainWindow):
             ''')
             self.changeTableButtons[i].clicked.connect(partial(self.changeTableButtonPressed, self.tableNames[i]))
             self.changeTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+
+            self.deleteTableButtons.append(QPushButton("Delete", self))
+            self.deleteTableButtons[i].setGeometry(920, 50 + i * 70, 150, 30)
+            self.deleteTableButtons[i].setStyleSheet('''
+                            font-size: 18px;
+                            color: #ede8df;
+                            background-color: #749cdb;
+                            border-radius: 10px;
+                            padding: 3px 8px;
+                        ''')
+            self.deleteTableButtons[i].clicked.connect(partial(self.deleteTableButtonPressed, self.tableNames[i]))
+            self.deleteTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
             self.viewTableButtons.append(QPushButton("View", self))
             self.viewTableButtons[i].setGeometry(1120, 50 + i * 70, 150, 30)
@@ -113,11 +113,11 @@ class AdminWorkWindow(QMainWindow):
     def addTableButtonPressed(self, tableName):
         self.addTableWin = AddTableWindow.AddTableWindow(tableName, self.connectionStr)
 
-    def deleteTableButtonPressed(self, tableName):
-        self.deleteTableWin = DeleteTableWindow.DeleteTableWindow(tableName, self.connectionStr)
-
     def changeTableButtonPressed(self, tableName):
         self.changeTableWin = ChangeTableWindow.ChangeTableWindow(tableName, self.connectionStr)
+
+    def deleteTableButtonPressed(self, tableName):
+        self.deleteTableWin = DeleteTableWindow.DeleteTableWindow(tableName, self.connectionStr)
 
     def viewTableButtonPressed(self, tableName):
         self.viewTableWin = ViewTableWindow.ViewTableWindow(tableName, self.connectionStr)
