@@ -673,8 +673,36 @@ AS $$
     WHERE id = _id;
 $$;
 
--- task 6, 7
--- create procedure with rollback on invalid transaction(passing cipher that already exist), in procedure cursor was created
+-- task 6
+-- create procedure with rollback on invalid transaction(passing cipher that already exist)
+CREATE PROCEDURE rollbackIfInvalidAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    row     record;
+    flag    integer;
+BEGIN
+    flag = 0;
+    START TRANSACTION
+    FOR row IN SELECT * FROM public.group
+    LOOP
+        IF row.cipher = _cipher THEN
+            flag = 1;
+        END IF;
+    END LOOP;
+    INSERT INTO public.group (cipher, course, studentsCount, cathedra_id, specialty_id) VALUES
+        (_cipher, _course, _studentsCount, _cathedra_id, _specialty_id);
+    IF flag = 1 THEN
+        ROLLBACK;
+    END IF;
+    COMMIT TRANSACTION;
+END;
+$$;
+
+DROP PROCEDURE rollbackIfInvalidAdd;
+
+-- task 7
+-- in procedure cursor was created
 CREATE PROCEDURE rollbackIfInvalidAdd(_cipher varchar(50), _course integer, _studentsCount integer, _cathedra_id integer, _specialty_id integer)
 LANGUAGE plpgsql
 AS $$

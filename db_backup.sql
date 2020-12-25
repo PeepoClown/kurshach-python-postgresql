@@ -20,15 +20,15 @@ SET row_security = off;
 -- Name: campusadd(character varying, character varying, character varying, time without time zone, time without time zone); Type: PROCEDURE; Schema: public; Owner: dmitriy
 --
 
-CREATE PROCEDURE public.campusadd(name character varying, adress character varying, phone character varying, workstart time without time zone, workend time without time zone)
+CREATE PROCEDURE public.campusadd(_name character varying, _adress character varying, _phone character varying, _workstart time without time zone, _workend time without time zone)
     LANGUAGE sql
     AS $$
-INSERT INTO public.campus (name, adress, phone, workStart, workEnd) VALUES
-    (name, adress, phone, workStart, workEnd);
+    INSERT INTO public.campus (name, adress, phone, workStart, workEnd) VALUES
+        (_name, _adress, _phone, _workStart, _workEnd);
 $$;
 
 
-ALTER PROCEDURE public.campusadd(name character varying, adress character varying, phone character varying, workstart time without time zone, workend time without time zone) OWNER TO dmitriy;
+ALTER PROCEDURE public.campusadd(_name character varying, _adress character varying, _phone character varying, _workstart time without time zone, _workend time without time zone) OWNER TO dmitriy;
 
 --
 -- Name: campuschange(integer, character varying, character varying, character varying, time without time zone, time without time zone); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -37,13 +37,13 @@ ALTER PROCEDURE public.campusadd(name character varying, adress character varyin
 CREATE PROCEDURE public.campuschange(_id integer, _name character varying, _adress character varying, _phone character varying, _workstart time without time zone, _workend time without time zone)
     LANGUAGE sql
     AS $$
-UPDATE public.campus
+    UPDATE public.campus
     SET name = _name,
     adress = _adress,
     phone = _phone,
     workStart = _workStart,
     workEnd = _workEnd
-    WHERE _id = id;
+    WHERE id = _id;
 $$;
 
 
@@ -70,8 +70,8 @@ ALTER PROCEDURE public.campusdelete(_id integer) OWNER TO dmitriy;
 CREATE PROCEDURE public.cathedraadd(_name character varying, _phone character varying, _email character varying, _faculty_id integer, _chief_id integer, _campus_id integer)
     LANGUAGE sql
     AS $$
-INSERT INTO public.cathedra (name, phone, email, faculty_id, chief_id, campus_id) VALUES
-    (_name, _phone, _email, _faculty_id, _chief_id, _campus_id);
+    INSERT INTO public.cathedra (name, phone, email, faculty_id, chief_id, campus_id) VALUES
+        (_name, _phone, _email, _faculty_id, _chief_id, _campus_id);
 $$;
 
 
@@ -84,7 +84,7 @@ ALTER PROCEDURE public.cathedraadd(_name character varying, _phone character var
 CREATE PROCEDURE public.cathedrachange(_id integer, _name character varying, _phone character varying, _email character varying, _faculty_id integer, _chief_id integer, _campus_id integer)
     LANGUAGE sql
     AS $$
-UPDATE public.cathedra
+    UPDATE public.cathedra
     SET name = _name,
         phone = _phone,
         email = _email,
@@ -104,7 +104,7 @@ ALTER PROCEDURE public.cathedrachange(_id integer, _name character varying, _pho
 CREATE PROCEDURE public.cathedradelete(_id integer)
     LANGUAGE sql
     AS $$
-DELETE FROM public.cathedra
+    DELETE FROM public.cathedra
     WHERE id = _id;
 $$;
 
@@ -115,15 +115,15 @@ ALTER PROCEDURE public.cathedradelete(_id integer) OWNER TO dmitriy;
 -- Name: classroomadd(character varying, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
 --
 
-CREATE PROCEDURE public.classroomadd(name character varying, campus_id integer)
+CREATE PROCEDURE public.classroomadd(_name character varying, _campus_id integer)
     LANGUAGE sql
     AS $$
-INSERT INTO public.classroom (name, campus_id) VALUES
-    (name, campus_id);
+    INSERT INTO public.classroom (name, campus_id) VALUES
+        (_name, _campus_id);
 $$;
 
 
-ALTER PROCEDURE public.classroomadd(name character varying, campus_id integer) OWNER TO dmitriy;
+ALTER PROCEDURE public.classroomadd(_name character varying, _campus_id integer) OWNER TO dmitriy;
 
 --
 -- Name: classroomchange(integer, character varying, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -132,7 +132,7 @@ ALTER PROCEDURE public.classroomadd(name character varying, campus_id integer) O
 CREATE PROCEDURE public.classroomchange(_id integer, _name character varying, _campus_id integer)
     LANGUAGE sql
     AS $$
-UPDATE public.classroom
+    UPDATE public.classroom
     SET name = _name,
     campus_id = _campus_id
     WHERE id = _id;
@@ -148,7 +148,7 @@ ALTER PROCEDURE public.classroomchange(_id integer, _name character varying, _ca
 CREATE PROCEDURE public.classroomdelete(_id integer)
     LANGUAGE sql
     AS $$
-DELETE FROM public.classroom
+    DELETE FROM public.classroom
     WHERE id = _id;
 $$;
 
@@ -162,8 +162,8 @@ ALTER PROCEDURE public.classroomdelete(_id integer) OWNER TO dmitriy;
 CREATE PROCEDURE public.classtimeadd(_starttime time without time zone, _endtime time without time zone)
     LANGUAGE sql
     AS $$
-INSERT INTO public.classTime (startTime, endTime) VALUES
-    (_startTime, _endTime);
+    INSERT INTO public.classTime (startTime, endTime) VALUES
+        (_startTime, _endTime);
 $$;
 
 
@@ -176,7 +176,7 @@ ALTER PROCEDURE public.classtimeadd(_starttime time without time zone, _endtime 
 CREATE PROCEDURE public.classtimechange(_id integer, _starttime time without time zone, _endtime time without time zone)
     LANGUAGE sql
     AS $$
-UPDATE public.classTime
+    UPDATE public.classTime
     SET startTime = _startTime,
         endTime = _endTime
     WHERE id = _id;
@@ -192,26 +192,12 @@ ALTER PROCEDURE public.classtimechange(_id integer, _starttime time without time
 CREATE PROCEDURE public.classtimedelete(_id integer)
     LANGUAGE sql
     AS $$
-DELETE FROM public.classTime
+    DELETE FROM public.classTime
     WHERE id = _id;
 $$;
 
 
 ALTER PROCEDURE public.classtimedelete(_id integer) OWNER TO dmitriy;
-
---
--- Name: deletechange(integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
---
-
-CREATE PROCEDURE public.deletechange(_id integer)
-    LANGUAGE sql
-    AS $$
-DELETE FROM public.campus
-    WHERE id = _id;
-$$;
-
-
-ALTER PROCEDURE public.deletechange(_id integer) OWNER TO dmitriy;
 
 --
 -- Name: facultyadd(character varying, character varying, character varying, integer, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -220,8 +206,8 @@ ALTER PROCEDURE public.deletechange(_id integer) OWNER TO dmitriy;
 CREATE PROCEDURE public.facultyadd(_name character varying, _phone character varying, _email character varying, _chief_id integer, _campus_id integer)
     LANGUAGE sql
     AS $$
-INSERT INTO public.faculty (name, phone, email, chief_id, campus_id) VALUES
-    (_name, _phone, _email, _chief_id, _campus_id);
+    INSERT INTO public.faculty (name, phone, email, chief_id, campus_id) VALUES
+        (_name, _phone, _email, _chief_id, _campus_id);
 $$;
 
 
@@ -234,7 +220,7 @@ ALTER PROCEDURE public.facultyadd(_name character varying, _phone character vary
 CREATE PROCEDURE public.facultychange(_id integer, _name character varying, _phone character varying, _email character varying, _chief_id integer, _campus_id integer)
     LANGUAGE sql
     AS $$
-UPDATE public.faculty
+    UPDATE public.faculty
     SET name = _name,
         phone = _phone,
         email = _email,
@@ -253,7 +239,7 @@ ALTER PROCEDURE public.facultychange(_id integer, _name character varying, _phon
 CREATE PROCEDURE public.facultydelete(_id integer)
     LANGUAGE sql
     AS $$
-DELETE FROM public.faculty
+    DELETE FROM public.faculty
     WHERE id = _id;
 $$;
 
@@ -285,22 +271,29 @@ ALTER FUNCTION public.getchiefbygroup(_field character varying) OWNER TO dmitriy
 -- Name: getchiefofcheifs(); Type: FUNCTION; Schema: public; Owner: dmitriy
 --
 
-CREATE FUNCTION public.getchiefofcheifs() RETURNS TABLE(name character varying, age integer, phone character varying, email character varying)
+CREATE FUNCTION public.getchiefofcheifs() RETURNS TABLE(name character varying, age integer, phone character varying, email character varying, cathedra character varying, faculty character varying)
     LANGUAGE plpgsql
     AS $$
 BEGIN
     RETURN QUERY
-    SELECT subquery.name, subquery.age, subquery.phone, subquery.email
-    FROM public.cathedra AS cathedra,
-    LATERAL  (SELECT teacher.id, teacher.name, teacher.age, teacher.phone, teacher.email
-              FROM public.teacher AS teacher
-              WHERE teacher.id = cathedra.chief_id
-    ) AS subquery
-    WHERE subquery.id IN (SELECT faculty.chief_id
-                          FROM public.faculty AS faculty
-                          LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
-                          WHERE public.teacher.name = subquery.name
-    );
+    SELECT
+        teacher.name, teacher.age, teacher.phone, teacher.email,
+        (SELECT public.cathedra.name FROM public.cathedra WHERE public.cathedra.chief_id = teacher.id),
+        (SELECT public.faculty.name FROM public.faculty WHERE public.faculty.id = 2)
+    FROM
+        (SELECT * FROM public.teacher) AS teacher
+        LEFT JOIN LATERAL (SELECT * FROM public.cathedra WHERE teacher.id = cathedra.chief_id) AS cathedra
+        ON teacher.id = cathedra.chief_id
+    WHERE
+        teacher.id IN (SELECT faculty.chief_id
+                       FROM public.faculty AS faculty
+                       LEFT JOIN public.teacher on faculty.chief_id = public.teacher.id
+                       WHERE public.teacher.name = teacher.name)
+        AND
+        teacher.age IN (SELECT public.teacher.age
+                        FROM public.teacher
+                        GROUP BY public.teacher.age
+                        HAVING public.teacher.age < 65);
 END;
 $$;
 
@@ -348,26 +341,6 @@ $$;
 
 
 ALTER FUNCTION public.getoldestteacher() OWNER TO dmitriy;
-
---
--- Name: getteachersbyage(integer); Type: FUNCTION; Schema: public; Owner: dmitriy
---
-
-CREATE FUNCTION public.getteachersbyage(_minage integer) RETURNS TABLE(cathedra character varying, name character varying, age integer)
-    LANGUAGE plpgsql
-    AS $$
-BEGIN
-    RETURN QUERY
-    SELECT public.cathedra.name, public.teacher.name, public.teacher.age
-    FROM public.cathedra, public.teacher
-    WHERE public.cathedra.id = public.teacher.cathedra_id
-    GROUP BY public.teacher.name, public.cathedra.name, public.teacher.age
-    HAVING SUM(public.teacher.age) > _minAge;
-END;
-$$;
-
-
-ALTER FUNCTION public.getteachersbyage(_minage integer) OWNER TO dmitriy;
 
 --
 -- Name: groupadd(character varying, integer, integer, integer, integer); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -530,7 +503,7 @@ CREATE FUNCTION public.selectgroupsbyweekday(_weekday character varying) RETURNS
     AS $$
 BEGIN
     RETURN QUERY
-    SELECT DISTINCT public.group.cipher
+    SELECT public.group.cipher
     FROM public.group
     WHERE public.group.id = ANY(SELECT public.schedule.group_id FROM public.schedule WHERE public.schedule.weekDay = _weekDay);
 END;
@@ -610,15 +583,15 @@ ALTER PROCEDURE public.specialtydelete(_id integer) OWNER TO dmitriy;
 -- Name: subjectadd(character varying); Type: PROCEDURE; Schema: public; Owner: dmitriy
 --
 
-CREATE PROCEDURE public.subjectadd(name character varying)
+CREATE PROCEDURE public.subjectadd(_name character varying)
     LANGUAGE sql
     AS $$
-INSERT INTO public.subject (name) VALUES
-    (name);
+    INSERT INTO public.subject (name) VALUES
+        (_name);
 $$;
 
 
-ALTER PROCEDURE public.subjectadd(name character varying) OWNER TO dmitriy;
+ALTER PROCEDURE public.subjectadd(_name character varying) OWNER TO dmitriy;
 
 --
 -- Name: subjectchange(integer, character varying); Type: PROCEDURE; Schema: public; Owner: dmitriy
@@ -627,7 +600,7 @@ ALTER PROCEDURE public.subjectadd(name character varying) OWNER TO dmitriy;
 CREATE PROCEDURE public.subjectchange(_id integer, _name character varying)
     LANGUAGE sql
     AS $$
-UPDATE public.subject
+    UPDATE public.subject
     SET name = _name
     WHERE id = _id;
 $$;
@@ -642,7 +615,7 @@ ALTER PROCEDURE public.subjectchange(_id integer, _name character varying) OWNER
 CREATE PROCEDURE public.subjectdelete(_id integer)
     LANGUAGE sql
     AS $$
-DELETE FROM public.subject
+    DELETE FROM public.subject
     WHERE id = _id;
 $$;
 
@@ -670,7 +643,7 @@ ALTER PROCEDURE public.teacheradd(_name character varying, _age integer, _phone 
 CREATE PROCEDURE public.teacherchange(_id integer, _name character varying, _age integer, _phone character varying, _email character varying, _cathedra_id integer, _teacherprofile_id integer)
     LANGUAGE sql
     AS $$
-UPDATE public.teacher
+    UPDATE public.teacher
     SET name = _name,
         age = _age,
         phone = _phone,
@@ -690,7 +663,7 @@ ALTER PROCEDURE public.teacherchange(_id integer, _name character varying, _age 
 CREATE PROCEDURE public.teacherdelete(_id integer)
     LANGUAGE sql
     AS $$
-DELETE FROM public.teacher
+    DELETE FROM public.teacher
     WHERE id = _id;
 $$;
 
@@ -704,8 +677,8 @@ ALTER PROCEDURE public.teacherdelete(_id integer) OWNER TO dmitriy;
 CREATE PROCEDURE public.teacherprofileadd(_rank character varying, _grade character varying, _position character varying, _education character varying)
     LANGUAGE sql
     AS $$
-INSERT INTO public.teacherProfile (rank, grade, position, education) VALUES
-    (_rank, _grade, _position, _education);
+    INSERT INTO public.teacherProfile (rank, grade, position, education) VALUES
+        (_rank, _grade, _position, _education);
 $$;
 
 
@@ -718,7 +691,7 @@ ALTER PROCEDURE public.teacherprofileadd(_rank character varying, _grade charact
 CREATE PROCEDURE public.teacherprofilechange(_id integer, _rank character varying, _grade character varying, _position character varying, _education character varying)
     LANGUAGE sql
     AS $$
-UPDATE public.teacherProfile
+    UPDATE public.teacherProfile
     SET rank = _rank,
         grade = _grade,
         position = _position,
@@ -736,7 +709,7 @@ ALTER PROCEDURE public.teacherprofilechange(_id integer, _rank character varying
 CREATE PROCEDURE public.teacherprofiledelete(_id integer)
     LANGUAGE sql
     AS $$
-DELETE FROM public.teacherProfile
+    DELETE FROM public.teacherProfile
     WHERE id = _id;
 $$;
 
@@ -1616,84 +1589,84 @@ COPY public.teacherprofilelogs (id, msg, logtime) FROM stdin;
 -- Name: campus_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.campus_id_seq', 18, true);
+SELECT pg_catalog.setval('public.campus_id_seq', 5, true);
 
 
 --
 -- Name: cathedra_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.cathedra_id_seq', 8, true);
+SELECT pg_catalog.setval('public.cathedra_id_seq', 5, true);
 
 
 --
 -- Name: classroom_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.classroom_id_seq', 32, true);
+SELECT pg_catalog.setval('public.classroom_id_seq', 30, true);
 
 
 --
 -- Name: classtime_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.classtime_id_seq', 9, true);
+SELECT pg_catalog.setval('public.classtime_id_seq', 6, true);
 
 
 --
 -- Name: faculty_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.faculty_id_seq', 7, true);
+SELECT pg_catalog.setval('public.faculty_id_seq', 2, true);
 
 
 --
 -- Name: group_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.group_id_seq', 66, true);
+SELECT pg_catalog.setval('public.group_id_seq', 14, true);
 
 
 --
 -- Name: schedule_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.schedule_id_seq', 92, true);
+SELECT pg_catalog.setval('public.schedule_id_seq', 90, true);
 
 
 --
 -- Name: specialty_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.specialty_id_seq', 9, true);
+SELECT pg_catalog.setval('public.specialty_id_seq', 8, true);
 
 
 --
 -- Name: subject_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.subject_id_seq', 10, true);
+SELECT pg_catalog.setval('public.subject_id_seq', 9, true);
 
 
 --
 -- Name: teacher_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.teacher_id_seq', 13, true);
+SELECT pg_catalog.setval('public.teacher_id_seq', 11, true);
 
 
 --
 -- Name: teacherprofile_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.teacherprofile_id_seq', 15, true);
+SELECT pg_catalog.setval('public.teacherprofile_id_seq', 8, true);
 
 
 --
 -- Name: teacherprofilelogs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dmitriy
 --
 
-SELECT pg_catalog.setval('public.teacherprofilelogs_id_seq', 5, true);
+SELECT pg_catalog.setval('public.teacherprofilelogs_id_seq', 1, false);
 
 
 --
@@ -1796,182 +1769,49 @@ ALTER TABLE ONLY public.teacherprofilelogs
 -- Name: campus_idindex; Type: INDEX; Schema: public; Owner: dmitriy
 --
 
-CREATE INDEX campus_idindex ON public.campus USING btree (id);
-
-
---
--- Name: cathedra_fkidcampusindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX cathedra_fkidcampusindex ON public.cathedra USING btree (campus_id);
-
-
---
--- Name: cathedra_fkidfacultyindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX cathedra_fkidfacultyindex ON public.cathedra USING btree (faculty_id);
-
-
---
--- Name: cathedra_fkidteacherindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX cathedra_fkidteacherindex ON public.cathedra USING btree (chief_id);
+CREATE INDEX campus_idindex ON public.campus USING btree (name);
 
 
 --
 -- Name: cathedra_idindex; Type: INDEX; Schema: public; Owner: dmitriy
 --
 
-CREATE INDEX cathedra_idindex ON public.cathedra USING btree (id);
-
-
---
--- Name: classroom_fkidcampusindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX classroom_fkidcampusindex ON public.classroom USING btree (campus_id);
+CREATE INDEX cathedra_idindex ON public.cathedra USING btree (phone);
 
 
 --
 -- Name: classroom_idindex; Type: INDEX; Schema: public; Owner: dmitriy
 --
 
-CREATE INDEX classroom_idindex ON public.classroom USING btree (id);
-
-
---
--- Name: classtime_idindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX classtime_idindex ON public.classtime USING btree (id);
-
-
---
--- Name: faculty_fkidcampusindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX faculty_fkidcampusindex ON public.faculty USING btree (campus_id);
-
-
---
--- Name: faculty_fkidteacherindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX faculty_fkidteacherindex ON public.faculty USING btree (chief_id);
+CREATE INDEX classroom_idindex ON public.classroom USING btree (name);
 
 
 --
 -- Name: faculty_idindex; Type: INDEX; Schema: public; Owner: dmitriy
 --
 
-CREATE INDEX faculty_idindex ON public.faculty USING btree (id);
-
-
---
--- Name: group_fkidcathedraindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX group_fkidcathedraindex ON public."group" USING btree (cathedra_id);
-
-
---
--- Name: group_fkidspecialtyindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX group_fkidspecialtyindex ON public."group" USING btree (specialty_id);
+CREATE INDEX faculty_idindex ON public.faculty USING btree (phone);
 
 
 --
 -- Name: group_idindex; Type: INDEX; Schema: public; Owner: dmitriy
 --
 
-CREATE INDEX group_idindex ON public."group" USING btree (id);
-
-
---
--- Name: schedule_fkidclassroomindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX schedule_fkidclassroomindex ON public.schedule USING btree (classroom_id);
-
-
---
--- Name: schedule_fkidclasstimeindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX schedule_fkidclasstimeindex ON public.schedule USING btree (classtime_id);
-
-
---
--- Name: schedule_fkidgroupindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX schedule_fkidgroupindex ON public.schedule USING btree (group_id);
-
-
---
--- Name: schedule_fkidsubjectindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX schedule_fkidsubjectindex ON public.schedule USING btree (subject_id);
-
-
---
--- Name: schedule_fkidteacherindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX schedule_fkidteacherindex ON public.schedule USING btree (teacher_id);
+CREATE INDEX group_idindex ON public."group" USING btree (cipher);
 
 
 --
 -- Name: schedule_idindex; Type: INDEX; Schema: public; Owner: dmitriy
 --
 
-CREATE INDEX schedule_idindex ON public.schedule USING btree (id);
-
-
---
--- Name: specialty_idindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX specialty_idindex ON public.specialty USING btree (id);
-
-
---
--- Name: subject_idindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX subject_idindex ON public.subject USING btree (id);
-
-
---
--- Name: teacher_fkidcathedraindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX teacher_fkidcathedraindex ON public.teacher USING btree (cathedra_id);
-
-
---
--- Name: teacher_fkidteacherprofileindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX teacher_fkidteacherprofileindex ON public.teacher USING btree (teacherprofile_id);
+CREATE INDEX schedule_idindex ON public.schedule USING btree (weekday);
 
 
 --
 -- Name: teacher_idindex; Type: INDEX; Schema: public; Owner: dmitriy
 --
 
-CREATE INDEX teacher_idindex ON public.teacher USING btree (id);
-
-
---
--- Name: teacherprofile_idindex; Type: INDEX; Schema: public; Owner: dmitriy
---
-
-CREATE INDEX teacherprofile_idindex ON public.teacherprofile USING btree (id);
+CREATE INDEX teacher_idindex ON public.teacher USING btree (name);
 
 
 --
@@ -2099,100 +1939,6 @@ ALTER TABLE ONLY public.cathedra
 
 ALTER TABLE ONLY public.faculty
     ADD CONSTRAINT fk_teachertofaculty FOREIGN KEY (chief_id) REFERENCES public.teacher(id);
-
-
---
--- Name: TABLE campus; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.campus TO admin;
-GRANT SELECT ON TABLE public.campus TO usr;
-
-
---
--- Name: TABLE cathedra; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.cathedra TO admin;
-GRANT SELECT ON TABLE public.cathedra TO usr;
-
-
---
--- Name: TABLE "group"; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public."group" TO admin;
-GRANT SELECT ON TABLE public."group" TO usr;
-
-
---
--- Name: TABLE teacher; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.teacher TO admin;
-GRANT SELECT ON TABLE public.teacher TO usr;
-
-
---
--- Name: TABLE classroom; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.classroom TO admin;
-GRANT SELECT ON TABLE public.classroom TO usr;
-
-
---
--- Name: TABLE classtime; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.classtime TO admin;
-GRANT SELECT ON TABLE public.classtime TO usr;
-
-
---
--- Name: TABLE faculty; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.faculty TO admin;
-GRANT SELECT ON TABLE public.faculty TO usr;
-
-
---
--- Name: TABLE schedule; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT SELECT ON TABLE public.schedule TO usr;
-
-
---
--- Name: TABLE specialty; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.specialty TO admin;
-GRANT SELECT ON TABLE public.specialty TO usr;
-
-
---
--- Name: TABLE subject; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.subject TO admin;
-GRANT SELECT ON TABLE public.subject TO usr;
-
-
---
--- Name: TABLE teacherprofile; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT ALL ON TABLE public.teacherprofile TO admin;
-GRANT SELECT ON TABLE public.teacherprofile TO usr;
-
-
---
--- Name: TABLE teacherprofilelogs; Type: ACL; Schema: public; Owner: dmitriy
---
-
-GRANT SELECT ON TABLE public.teacherprofilelogs TO usr;
 
 
 --

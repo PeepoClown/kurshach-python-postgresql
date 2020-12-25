@@ -48,41 +48,42 @@ class AdminWorkWindow(QMainWindow):
                 font-size: 16px;
             ''')
 
-            self.addTableButtons.append(QPushButton("Add", self))
-            self.addTableButtons[i].setGeometry(520, 50 + i * 70, 150, 30)
-            self.addTableButtons[i].setStyleSheet('''
-                font-size: 18px;
-                color: #ede8df;
-                background-color: #749cdb;
-                border-radius: 10px;
-                padding: 3px 8px;
-            ''')
-            self.addTableButtons[i].clicked.connect(partial(self.addTableButtonPressed, self.tableNames[i]))
-            self.addTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+            if self.tableNames[i] != 'teacherprofilelogs':
+                self.addTableButtons.append(QPushButton("Add", self))
+                self.addTableButtons[i].setGeometry(520, 50 + i * 70, 150, 30)
+                self.addTableButtons[i].setStyleSheet('''
+                    font-size: 18px;
+                    color: #ede8df;
+                    background-color: #749cdb;
+                    border-radius: 10px;
+                    padding: 3px 8px;
+                ''')
+                self.addTableButtons[i].clicked.connect(partial(self.addTableButtonPressed, self.tableNames[i]))
+                self.addTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
-            self.changeTableButtons.append(QPushButton("Change", self))
-            self.changeTableButtons[i].setGeometry(720, 50 + i * 70, 150, 30)
-            self.changeTableButtons[i].setStyleSheet('''
-                font-size: 18px;
-                color: #ede8df;
-                background-color: #749cdb;
-                border-radius: 10px;
-                padding: 3px 8px;
-            ''')
-            self.changeTableButtons[i].clicked.connect(partial(self.changeTableButtonPressed, self.tableNames[i]))
-            self.changeTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+                self.changeTableButtons.append(QPushButton("Change", self))
+                self.changeTableButtons[i].setGeometry(720, 50 + i * 70, 150, 30)
+                self.changeTableButtons[i].setStyleSheet('''
+                    font-size: 18px;
+                    color: #ede8df;
+                    background-color: #749cdb;
+                    border-radius: 10px;
+                    padding: 3px 8px;
+                ''')
+                self.changeTableButtons[i].clicked.connect(partial(self.changeTableButtonPressed, self.tableNames[i]))
+                self.changeTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
-            self.deleteTableButtons.append(QPushButton("Delete", self))
-            self.deleteTableButtons[i].setGeometry(920, 50 + i * 70, 150, 30)
-            self.deleteTableButtons[i].setStyleSheet('''
-                            font-size: 18px;
-                            color: #ede8df;
-                            background-color: #749cdb;
-                            border-radius: 10px;
-                            padding: 3px 8px;
-                        ''')
-            self.deleteTableButtons[i].clicked.connect(partial(self.deleteTableButtonPressed, self.tableNames[i]))
-            self.deleteTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
+                self.deleteTableButtons.append(QPushButton("Delete", self))
+                self.deleteTableButtons[i].setGeometry(920, 50 + i * 70, 150, 30)
+                self.deleteTableButtons[i].setStyleSheet('''
+                                font-size: 18px;
+                                color: #ede8df;
+                                background-color: #749cdb;
+                                border-radius: 10px;
+                                padding: 3px 8px;
+                            ''')
+                self.deleteTableButtons[i].clicked.connect(partial(self.deleteTableButtonPressed, self.tableNames[i]))
+                self.deleteTableButtons[i].setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
             self.viewTableButtons.append(QPushButton("View", self))
             self.viewTableButtons[i].setGeometry(1120, 50 + i * 70, 150, 30)

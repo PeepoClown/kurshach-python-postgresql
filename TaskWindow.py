@@ -75,7 +75,10 @@ class TaskWindow(QMainWindow):
         submitBtn.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
     def task2aButtonPressed(self):
-        self.cursor.execute('SELECT * FROM selectGroupsByCourse(%i);' % int(self.lEdit.text()))
+        val = self.lEdit.text()
+        if val == '' or not str(val).isdigit():
+            val = '0'
+        self.cursor.execute('SELECT * FROM selectGroupsByCourse(%i);' % int(val))
         self.data.append(["Group Cipher", "Cathedra", "Capacity"])
         for i in self.cursor.fetchall():
             self.data.append(i)
@@ -160,7 +163,10 @@ class TaskWindow(QMainWindow):
         submitBtn.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
     def task2dButtonPressed(self):
-        self.cursor.execute('SELECT * FROM getClassesByTeacher(%i);' % int(self.lEdit.text()))
+        val = self.lEdit.text()
+        if val == '' or not str(val).isdigit():
+            val = '1'
+        self.cursor.execute('SELECT * FROM getClassesByTeacher(%i);' % int(val))
         self.data.append(["Teacher Name", "Day of Week", "Pairs"])
         for i in self.cursor.fetchall():
             self.data.append(i)
@@ -206,7 +212,7 @@ class TaskWindow(QMainWindow):
 
     def task6(self):
         labels = []
-        label = ['Group cipher: ', 'Course', 'Count of students', 'Cathedra', 'Specialty']
+        label = ['Group cipher: ', 'Course:', 'Students:', 'Cathedra:', 'Specialty:']
         for i in range(0, 3):
             labels.append(QLabel(label[i], self))
             labels[i].setGeometry(150, 220 + i * 50, 120, 30)
@@ -261,18 +267,22 @@ class TaskWindow(QMainWindow):
         return text
 
     def task6ButtonPressed(self):
-        fk1 = self.t6ComboBoxes[0].currentText()
-        fk2 = self.t6ComboBoxes[1].currentText()
+        if self.t6LineEdits[0].text() == '' or self.t6LineEdits[1].text() == '' or self.t6LineEdits[2].text() == '':
+            msgBox = QMessageBox(QMessageBox.Information, "Task 6", "You must to fill all fields",
+                                 QMessageBox.Ok | QMessageBox.Cancel, self)
+        else:
+            fk1 = self.t6ComboBoxes[0].currentText()
+            fk2 = self.t6ComboBoxes[1].currentText()
 
-        fk1 = int(self.getFK(fk1))
-        fk2 = int(self.getFK(fk2))
+            fk1 = int(self.getFK(fk1))
+            fk2 = int(self.getFK(fk2))
 
-        self.cursor.execute('START TRANSACTION; CALL rollbackIfInvalidAdd(\'%s\', %d, %d, %d, %d);'
-                            % (self.t6LineEdits[0].text(), int(self.t6LineEdits[1].text()),
-                                int(self.t6LineEdits[2].text()), fk1, fk2))
-        self.connection.commit()
-        msgBox = QMessageBox(QMessageBox.Information, "Task 6", "Try to add group: " + self.t6LineEdits[0].text(),
-                             QMessageBox.Ok | QMessageBox.Cancel, self)
+            self.cursor.execute('START TRANSACTION; CALL rollbackIfInvalidAdd(\'%s\', %i, %i, %i, %i);'
+                                % (self.t6LineEdits[0].text(), int(self.t6LineEdits[1].text()),
+                                    int(self.t6LineEdits[2].text()), fk1, fk2))
+            self.connection.commit()
+            msgBox = QMessageBox(QMessageBox.Information, "Task 6", "Try to add group: " + self.t6LineEdits[0].text(),
+                                 QMessageBox.Ok | QMessageBox.Cancel, self)
         msgBox.exec()
 
     def viewGroupsPressed(self):
@@ -331,8 +341,11 @@ class TaskWindow(QMainWindow):
         submitBtn.setCursor(QCursor(QtCore.Qt.PointingHandCursor))
 
     def taskClassroomsButtonPressed(self):
-        self.cursor.execute('SELECT * FROM showFreeClassrooms(%d, \'%s\');' %
-                            (int(self.lEditPair.text()), self.cBoxWeekDay.currentText()))
+        val = self.lEditPair.text()
+        if val == '' or not str(val).isdigit():
+            val = '0'
+        self.cursor.execute('SELECT * FROM showFreeClassrooms(%i, \'%s\');' %
+                            (int(val), self.cBoxWeekDay.currentText()))
         self.data.append(["Classroom"])
         for i in self.cursor.fetchall():
             self.data.append(i)
